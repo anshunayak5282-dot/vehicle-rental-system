@@ -93,6 +93,10 @@ async function getUserById(req, res, next) {
       }
       if (!user) return res.status(404).json({ success: false, message: 'User not found' });
       const displayName = user.full_name || user.name || (user.email ? user.email.split('@')[0] : 'User');
+      let roleProfile = null;
+      if (user.role === 'customer' && models.Customer) {
+        roleProfile = await models.Customer.findOne({ user_id: user._id }).lean();
+      }
       return res.json({
         success: true,
         user: {
@@ -100,7 +104,13 @@ async function getUserById(req, res, next) {
           id: user.id || user._id.toString(),
           _id: user._id ? user._id.toString() : undefined,
           full_name: displayName,
-          name: displayName
+          name: displayName,
+          avatar_url: user.avatar_url || (roleProfile ? roleProfile.avatar_url : '') || '',
+          city: user.city || (roleProfile ? roleProfile.city : '') || '',
+          postal_code: user.postal_code || (roleProfile ? roleProfile.postal_code : '') || '',
+          address: user.address || (roleProfile ? roleProfile.address : '') || '',
+          license_number: (roleProfile ? roleProfile.license_number : user.license_number) || '',
+          profile: roleProfile || null
         }
       });
     }
@@ -154,6 +164,12 @@ async function createUser(req, res, next) {
       const newId = count + 1;
       const normalizedRole = role.toLowerCase();
 
+      const cleanCity = req.body.city ? req.body.city.trim() : null;
+      const cleanZip = (req.body.postal_code || req.body.zip) ? (req.body.postal_code || req.body.zip).trim() : null;
+      const cleanAddress = req.body.address ? req.body.address.trim() : null;
+      const cleanAvatar = req.body.avatar_url ? req.body.avatar_url.trim() : null;
+      const cleanLicense = req.body.license_number ? req.body.license_number.trim().toUpperCase() : null;
+
       const userDoc = new models.User({
         id: newId,
         full_name: resolvedFullName,
@@ -164,7 +180,11 @@ async function createUser(req, res, next) {
         role: normalizedRole,
         role_id: roleId,
         status: status || 'active',
-        license_number: req.body.license_number || null,
+        license_number: cleanLicense,
+        city: cleanCity,
+        postal_code: cleanZip,
+        address: cleanAddress,
+        avatar_url: cleanAvatar,
         verification_status: 'verified'
       });
 
@@ -177,12 +197,14 @@ async function createUser(req, res, next) {
           full_name: resolvedFullName,
           name: resolvedFullName,
           role: 'customer',
-          license_number: req.body.license_number || `DL-MH-${newId}000`,
+          license_number: cleanLicense,
           license_expiry: '2029-12-31',
           id_proof_type: 'Driving License',
           verification_status: 'verified',
-          address: req.body.address ? req.body.address.trim() : 'Altamount Road, Cumballa Hill',
-          city: req.body.city ? req.body.city.trim() : 'Mumbai',
+          address: cleanAddress,
+          city: cleanCity,
+          postal_code: cleanZip,
+          avatar_url: cleanAvatar,
           membership_tier: 'Standard',
           total_rentals: 0
         });
@@ -292,19 +314,28 @@ async function createUser(req, res, next) {
 async function updateUser(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, full_name, email, phone, role, status } = req.body;
+    const {
+      name, full_name, email, phone, role, status,
+      avatar_url, city, postal_code, zip, address, license_number
+    } = req.body;
 
     // 1. MongoDB
     if (isMongoConnected() && models.User) {
       const updates = {};
-      const newName = (full_name || name || '').trim();
+      const newName = (full_name !== undefined || name !== undefined) ? (full_name || name || '').trim() : '';
       if (newName) {
         updates.name = newName;
         updates.full_name = newName;
       }
-      if (email) updates.email = email.trim().toLowerCase();
-      if (phone) updates.phone = phone.trim();
-      if (status) updates.status = status;
+      if (email !== undefined) updates.email = email.trim().toLowerCase();
+      if (phone !== undefined) updates.phone = phone ? phone.trim() : null;
+      if (status !== undefined) updates.status = status;
+      if (avatar_url !== undefined) updates.avatar_url = avatar_url;
+      if (city !== undefined) updates.city = city ? city.trim() : null;
+      const cleanZip = (postal_code !== undefined ? postal_code : zip);
+      if (cleanZip !== undefined) updates.postal_code = cleanZip ? cleanZip.trim() : null;
+      if (address !== undefined) updates.address = address ? address.trim() : null;
+      if (license_number !== undefined) updates.license_number = license_number ? license_number.trim().toUpperCase() : null;
       if (role) {
         updates.role = role.toLowerCase();
         updates.role_id = ROLE_IDS[role.toLowerCase()] || 2;
@@ -319,15 +350,45 @@ async function updateUser(req, res, next) {
       }
       if (!updated) return res.status(404).json({ success: false, message: 'User not found' });
 
-      // Synchronize full_name in role-specific profile document if name changed
+      // Synchronize role-specific profile document (e.g. Customer)
+      const roleUpdates = {};
       if (newName) {
-        if (models.Customer) await models.Customer.updateMany({ user_id: updated._id }, { full_name: newName, name: newName });
-        if (models.Driver) await models.Driver.updateMany({ user_id: updated._id }, { full_name: newName, name: newName });
-        if (models.Manager) await models.Manager.updateMany({ user_id: updated._id }, { full_name: newName, name: newName });
-        if (models.Admin) await models.Admin.updateMany({ user_id: updated._id }, { full_name: newName, name: newName });
+        roleUpdates.name = newName;
+        roleUpdates.full_name = newName;
+      }
+      if (avatar_url !== undefined) roleUpdates.avatar_url = avatar_url;
+      if (city !== undefined) roleUpdates.city = city ? city.trim() : null;
+      if (cleanZip !== undefined) roleUpdates.postal_code = cleanZip ? cleanZip.trim() : null;
+      if (address !== undefined) roleUpdates.address = address ? address.trim() : null;
+      if (license_number !== undefined) roleUpdates.license_number = license_number ? license_number.trim().toUpperCase() : null;
+
+      if (Object.keys(roleUpdates).length > 0) {
+        if (models.Customer) await models.Customer.updateMany({ user_id: updated._id }, roleUpdates);
+        if (models.Driver) await models.Driver.updateMany({ user_id: updated._id }, roleUpdates);
+        if (models.Manager) await models.Manager.updateMany({ user_id: updated._id }, roleUpdates);
+        if (models.Admin) await models.Admin.updateMany({ user_id: updated._id }, roleUpdates);
       }
 
-      return res.json({ success: true, message: 'User updated successfully in MongoDB', user: updated });
+      let roleProfile = null;
+      if (updated.role === 'customer' && models.Customer) {
+        roleProfile = await models.Customer.findOne({ user_id: updated._id }).lean();
+      }
+
+      const returnUser = {
+        ...updated.toObject(),
+        id: updated.id || updated._id.toString(),
+        _id: updated._id.toString(),
+        full_name: updated.full_name || updated.name,
+        name: updated.full_name || updated.name,
+        avatar_url: updated.avatar_url || (roleProfile ? roleProfile.avatar_url : '') || '',
+        city: updated.city || (roleProfile ? roleProfile.city : '') || '',
+        postal_code: updated.postal_code || (roleProfile ? roleProfile.postal_code : '') || '',
+        address: updated.address || (roleProfile ? roleProfile.address : '') || '',
+        license_number: (roleProfile ? roleProfile.license_number : updated.license_number) || '',
+        profile: roleProfile || null
+      };
+
+      return res.json({ success: true, message: 'User updated successfully in MongoDB', user: returnUser });
     }
 
     // 2. MySQL

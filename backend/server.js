@@ -28,9 +28,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Body Parser Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Body Parser Middleware (supports base64 profile pictures)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Serve frontend static files directly from Express for convenience
 const frontendPath = path.join(__dirname, '..', 'frontend');

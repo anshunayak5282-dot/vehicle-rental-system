@@ -26,7 +26,7 @@ function createCustomerModel(mongoose) {
     },
     license_number: {
       type: String,
-      required: true,
+      default: null,
       uppercase: true,
       trim: true
     },
@@ -42,8 +42,10 @@ function createCustomerModel(mongoose) {
       enum: ['pending', 'verified', 'rejected'],
       default: 'verified'
     },
-    address: { type: String, default: 'Altamount Road, Cumballa Hill' },
-    city: { type: String, default: 'Mumbai' },
+    address: { type: String, default: null, trim: true },
+    city: { type: String, default: null, trim: true },
+    postal_code: { type: String, default: null, trim: true },
+    avatar_url: { type: String, default: null },
     total_rentals: { type: Number, default: 0 },
     membership_tier: {
       type: String,

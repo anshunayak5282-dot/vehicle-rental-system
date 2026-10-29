@@ -174,6 +174,63 @@ async function createBooking(req, res, next) {
 
     // 1. MongoDB
     if (isMongoConnected() && models.Booking && models.Vehicle) {
+      // Strict Profile Completeness Check (100% Required for Reservations)
+      let customerUser = null;
+      if (req.user && req.user._id) {
+        customerUser = await models.User.findById(req.user._id).lean();
+      }
+      if (!customerUser && req.user && req.user.id) {
+        if (!isNaN(req.user.id)) {
+          customerUser = await models.User.findOne({ id: parseInt(req.user.id) }).lean();
+        } else if (String(req.user.id).match(/^[0-9a-fA-F]{24}$/)) {
+          customerUser = await models.User.findById(req.user.id).lean();
+        }
+      }
+      if (!customerUser && req.user && req.user.email) {
+        customerUser = await models.User.findOne({ email: req.user.email }).lean();
+      }
+
+      let customerProfile = null;
+      if (customerUser && models.Customer) {
+        customerProfile = await models.Customer.findOne({ user_id: customerUser._id }).lean();
+      }
+
+      if (customerUser) {
+        const missingFields = [];
+        const fullName = (customerUser.full_name || customerUser.name || (customerProfile ? (customerProfile.full_name || customerProfile.name) : '') || '').trim();
+        if (!fullName) missingFields.push('Full Name');
+
+        const phone = (customerUser.phone || '').trim();
+        if (!phone) missingFields.push('Phone Number');
+
+        const license = (customerUser.license_number || (customerProfile ? customerProfile.license_number : '') || '').trim();
+        if (!license) missingFields.push('Driving License Number');
+
+        const cityVal = (customerUser.city || (customerProfile ? customerProfile.city : '') || '').trim();
+        if (!cityVal) missingFields.push('City');
+
+        const postalVal = (customerUser.postal_code || (customerProfile ? customerProfile.postal_code : '') || '').trim();
+        if (!postalVal) missingFields.push('Postal Code / PIN');
+
+        const addressVal = (customerUser.address || (customerProfile ? customerProfile.address : '') || '').trim();
+        if (!addressVal) missingFields.push('Residential Address');
+
+        const avatarVal = (customerUser.avatar_url || (customerProfile ? customerProfile.avatar_url : '') || '').trim();
+        if (!avatarVal) missingFields.push('Profile Photo');
+
+        if (missingFields.length > 0) {
+          const completedCount = 7 - missingFields.length;
+          const completionPercentage = Math.round((completedCount / 7) * 100);
+          return res.status(403).json({
+            success: false,
+            profile_incomplete: true,
+            completion_percentage: completionPercentage,
+            missing_fields: missingFields,
+            message: `Profile is only ${completionPercentage}% complete. 100% completion is mandatory before reserving a vehicle. Missing: ${missingFields.join(', ')}.`
+          });
+        }
+      }
+
       let vehicle = null;
       if (String(vehicle_id).match(/^[0-9a-fA-F]{24}$/)) {
         vehicle = await models.Vehicle.findById(vehicle_id).lean();

@@ -53,7 +53,22 @@ function createUserModel(mongoose) {
     },
     avatar_url: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'
+      default: null
+    },
+    city: {
+      type: String,
+      default: null,
+      trim: true
+    },
+    postal_code: {
+      type: String,
+      default: null,
+      trim: true
+    },
+    address: {
+      type: String,
+      default: null,
+      trim: true
     },
     // Reference to role-specific profile document in separate collection (Customer, Admin, Manager, Driver)
     role_profile_id: {

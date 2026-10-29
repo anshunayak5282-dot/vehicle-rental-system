@@ -23,7 +23,10 @@ const ROLE_IDS = {
 // POST /api/auth/register
 async function register(req, res, next) {
   try {
-    const { name, full_name, email, password, phone, role = 'customer', license_number, address, city } = req.body;
+    const {
+      name, full_name, email, password, phone, role = 'customer',
+      license_number, address, city, postal_code, zip, avatar_url
+    } = req.body;
     const resolvedFullName = (full_name || name || '').trim();
 
     const missing = validateRequired(req.body, ['email', 'password']);
@@ -61,6 +64,10 @@ async function register(req, res, next) {
     const roleId = ROLE_IDS[normalizedRole] || 2;
     const cleanPhone = phone ? phone.trim() : null;
     const cleanLicense = license_number ? license_number.trim().toUpperCase() : null;
+    const cleanCity = city ? city.trim() : null;
+    const cleanZip = (postal_code || zip) ? (postal_code || zip).trim() : null;
+    const cleanAddress = address ? address.trim() : null;
+    const cleanAvatar = avatar_url ? avatar_url.trim() : null;
 
     // Ensure MongoDB is connected
     if (!isMongoConnected()) {
@@ -81,7 +88,7 @@ async function register(req, res, next) {
       const totalUsers = await models.User.countDocuments();
       const newId = totalUsers + 1;
 
-      // Base user document in 'users' collection with full_name
+      // Base user document in 'users' collection with genuine fields
       const newUserDoc = new models.User({
         id: newId,
         full_name: resolvedFullName,
@@ -93,8 +100,11 @@ async function register(req, res, next) {
         role_id: roleId,
         status: 'active',
         license_number: cleanLicense,
+        city: cleanCity,
+        postal_code: cleanZip,
+        address: cleanAddress,
         verification_status: 'verified',
-        avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'
+        avatar_url: cleanAvatar
       });
 
       // Role-specific collection document containing user_id, full_name, and role
@@ -106,12 +116,14 @@ async function register(req, res, next) {
           full_name: resolvedFullName,
           name: resolvedFullName,
           role: 'customer',
-          license_number: cleanLicense || `DL-MH-${newId}000`,
+          license_number: cleanLicense,
           license_expiry: '2029-12-31',
           id_proof_type: 'Driving License',
           verification_status: 'verified',
-          address: address ? address.trim() : 'Altamount Road, Cumballa Hill',
-          city: city ? city.trim() : 'Mumbai',
+          address: cleanAddress,
+          city: cleanCity,
+          postal_code: cleanZip,
+          avatar_url: cleanAvatar,
           membership_tier: 'Standard',
           total_rentals: 0
         });
@@ -184,10 +196,13 @@ async function register(req, res, next) {
           name: newUserDoc.name,
           email: cleanEmail,
           role: normalizedRole,
-          phone: newUserDoc.phone,
-          license_number: newUserDoc.license_number,
+          phone: newUserDoc.phone || '',
+          city: newUserDoc.city || '',
+          postal_code: newUserDoc.postal_code || '',
+          address: newUserDoc.address || '',
+          license_number: newUserDoc.license_number || '',
           verification_status: newUserDoc.verification_status,
-          avatar_url: newUserDoc.avatar_url,
+          avatar_url: newUserDoc.avatar_url || '',
           role_profile_id: newUserDoc.role_profile_id
         }
       });
@@ -368,10 +383,13 @@ async function login(req, res, next) {
           full_name: displayName,
           email: user.email,
           role: user.role,
-          phone: user.phone,
-          avatar_url: user.avatar_url,
-          license_number: roleProfile ? roleProfile.license_number : user.license_number,
-          verification_status: roleProfile ? roleProfile.verification_status : user.verification_status,
+          phone: user.phone || '',
+          avatar_url: user.avatar_url || (roleProfile ? roleProfile.avatar_url : '') || '',
+          city: user.city || (roleProfile ? roleProfile.city : '') || '',
+          postal_code: user.postal_code || (roleProfile ? roleProfile.postal_code : '') || '',
+          address: user.address || (roleProfile ? roleProfile.address : '') || '',
+          license_number: (roleProfile ? roleProfile.license_number : user.license_number) || '',
+          verification_status: (roleProfile ? roleProfile.verification_status : user.verification_status) || 'verified',
           profile: roleProfile || null
         }
       });
@@ -503,9 +521,14 @@ async function getMe(req, res, next) {
           _id: safeUser._id ? safeUser._id.toString() : undefined,
           name: displayName,
           full_name: displayName,
+          phone: safeUser.phone || '',
           role: safeUser.role || (roleProfile ? roleProfile.role : 'customer'),
-          license_number: roleProfile ? roleProfile.license_number : safeUser.license_number,
-          verification_status: roleProfile ? roleProfile.verification_status : safeUser.verification_status,
+          avatar_url: safeUser.avatar_url || (roleProfile ? roleProfile.avatar_url : '') || '',
+          city: safeUser.city || (roleProfile ? roleProfile.city : '') || '',
+          postal_code: safeUser.postal_code || (roleProfile ? roleProfile.postal_code : '') || '',
+          address: safeUser.address || (roleProfile ? roleProfile.address : '') || '',
+          license_number: (roleProfile ? roleProfile.license_number : safeUser.license_number) || '',
+          verification_status: (roleProfile ? roleProfile.verification_status : safeUser.verification_status) || 'verified',
           profile: roleProfile || null
         }
       });
