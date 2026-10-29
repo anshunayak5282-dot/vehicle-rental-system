@@ -71,7 +71,7 @@
         <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(17, 24, 39, 0.8)); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-lg); padding: 24px 32px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap;">
           <div>
             <h2 style="font-size: 1.8rem; margin-bottom: 6px;">Welcome back, <span class="js-user-name">Customer</span>!</h2>
-            <p style="color: var(--text-secondary); font-size: 0.95rem;">Your identity and driving credentials are <strong style="color: var(--status-available);">100% Verified</strong> for instant rental checkout.</p>
+            <p id="dashboardKycNotice" style="color: var(--text-secondary); font-size: 0.95rem;">Your identity and driving credentials are <strong style="color: var(--status-available);">100% Verified</strong> for instant rental checkout.</p>
           </div>
           <a href="vehicles.html" class="btn btn-primary">Browse Available Fleet &rarr;</a>
         </div>
@@ -223,6 +223,28 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       auth.guard(['customer']);
+      
+      let user = auth.getUser();
+      try {
+        const meRes = await api.auth.getMe();
+        if (meRes && meRes.user) {
+          user = meRes.user;
+          localStorage.setItem('apex_user', JSON.stringify(user));
+        }
+      } catch (e) {}
+
+      if (user && auth.checkProfileCompleteness) {
+        const comp = auth.checkProfileCompleteness(user);
+        const kycEl = document.getElementById('dashboardKycNotice');
+        if (kycEl) {
+          if (comp.isComplete) {
+            kycEl.innerHTML = `Your identity and driving credentials are <strong style="color: var(--status-available);">100% Verified</strong> for instant rental checkout.`;
+          } else {
+            kycEl.innerHTML = `Your profile is <strong style="color: #fbbf24;">${comp.percentage}% Complete</strong> (${comp.missing.length} missing fields). <a href="profile.html" style="color: var(--accent-gold); text-decoration: underline; font-weight: 600;">Complete 100% to unlock vehicle reservations &rarr;</a>`;
+          }
+        }
+      }
+
       loadCustomerBookings();
     });
 
@@ -270,7 +292,13 @@
                 <div style="font-weight: 600;">${b.vehicle_name}</div>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">${b.vehicle_number || ''}</div>
               </td>
-              <td>${b.start_date} <br><span style="font-size: 0.8rem; color: var(--text-muted);">to ${b.end_date} (${b.total_days} days)</span></td>
+              <td>
+                <div>${b.start_date} &rarr; ${b.end_date}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${b.total_days} Day(s)</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Pickup: ${b.pickup_location || 'Hub'} | Return: ${b.drop_location || 'Hub'}">
+                  📍 ${b.pickup_location || 'Hub'} &rarr; ${b.drop_location || 'Hub'}
+                </div>
+              </td>
               <td>${b.driver_required ? 'Chauffeur Assigned' : 'Self-Drive'}</td>
               <td><strong style="color: var(--accent-gold);">${formatCurrency(b.total_amount)}</strong></td>
               <td><span class="badge ${badgeClass}">${b.status}</span></td>

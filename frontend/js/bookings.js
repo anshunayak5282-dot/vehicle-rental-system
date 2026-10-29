@@ -58,10 +58,24 @@ function updateBreakdownDisplay(days, vehicleCost, driverFee, insuranceFee, subt
 async function handleBookingSubmit(event, selectedVehicle) {
   event.preventDefault();
 
+  const user = auth.getUser();
+  if (user && auth.checkProfileCompleteness) {
+    const completeness = auth.checkProfileCompleteness(user);
+    if (!completeness.isComplete) {
+      showToast(`Profile Incomplete (${completeness.percentage}%). Complete all 7 fields before booking: ${completeness.missing.join(', ')}`, 'error');
+      setTimeout(() => {
+        if (confirm(`⚠️ Profile Incomplete (${completeness.percentage}%)\n\nVehicle reservations require 100% completed profile.\nMissing fields:\n• ${completeness.missing.join('\n• ')}\n\nWould you like to complete your profile now?`)) {
+          window.location.href = 'profile.html';
+        }
+      }, 350);
+      return;
+    }
+  }
+
   const startDate = document.getElementById('startDate').value;
   const endDate = document.getElementById('endDate').value;
-  const pickup = document.getElementById('pickupLocation').value;
-  const drop = document.getElementById('dropLocation').value;
+  const pickup = (document.getElementById('pickupLocation')?.value || '').trim();
+  const drop = (document.getElementById('dropLocation')?.value || '').trim();
   const driverRequired = document.getElementById('driverRequired')?.checked || false;
   const insuranceOpted = document.getElementById('insuranceOpted')?.checked || true;
   const notes = document.getElementById('bookingNotes')?.value || '';
@@ -71,10 +85,21 @@ async function handleBookingSubmit(event, selectedVehicle) {
     return;
   }
 
-  const user = auth.getUser();
+  if (!pickup || pickup.length < 3) {
+    showToast('Please specify a valid pickup location address (minimum 3 characters).', 'error');
+    document.getElementById('pickupLocation')?.focus();
+    return;
+  }
+
+  if (!drop || drop.length < 3) {
+    showToast('Please specify a valid return/drop location address (minimum 3 characters).', 'error');
+    document.getElementById('dropLocation')?.focus();
+    return;
+  }
+
   const payload = {
     customer_id: user ? (user.id || user._id) : 2,
-    customer_name: user ? user.name : 'Customer Renter',
+    customer_name: user ? (user.full_name || user.name) : 'Customer Renter',
     customer_email: user ? user.email : 'customer@gmail.com',
     customer_phone: user ? user.phone : null,
     vehicle_id: selectedVehicle.id,
@@ -94,7 +119,16 @@ async function handleBookingSubmit(event, selectedVehicle) {
       window.location.href = 'bookings.html';
     }, 1200);
   } catch (err) {
-    showToast(err.message || 'Failed to submit booking.', 'error');
+    if (err.data && err.data.profile_incomplete) {
+      showToast(err.message, 'error');
+      setTimeout(() => {
+        if (confirm(`${err.message}\n\nGo to your Profile page now?`)) {
+          window.location.href = 'profile.html';
+        }
+      }, 400);
+    } else {
+      showToast(err.message || 'Failed to submit booking.', 'error');
+    }
   }
 }
 

@@ -205,7 +205,12 @@
                 <div style="font-size: 0.75rem; color: var(--text-muted);">${b.customer_phone || ''}</div>
               </td>
               <td>${b.vehicle_name}</td>
-              <td>${b.start_date} &rarr; ${b.end_date}</td>
+              <td>
+                <div>${b.start_date} &rarr; ${b.end_date}</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Pickup: ${b.pickup_location || 'Hub'} &rarr; Drop: ${b.drop_location || 'Hub'}">
+                  📍 ${b.pickup_location || 'Hub'} &rarr; ${b.drop_location || 'Hub'}
+                </div>
+              </td>
               <td>
                 ${b.driver_required ? `
                   <span style="color: var(--accent-cyan); font-weight: 600;">${b.driver_name || 'Driver Needed'}</span>

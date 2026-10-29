@@ -8,6 +8,66 @@
   <link rel="stylesheet" href="../../css/dashboard.css">
   <link rel="stylesheet" href="../../css/forms.css">
   <link rel="stylesheet" href="../../css/responsive.css">
+  <style>
+    .location-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .btn-location-gps {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: var(--accent-gold);
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+    .btn-location-gps:hover {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: var(--accent-gold);
+      color: #fde047;
+      transform: translateY(-1px);
+    }
+    .btn-location-gps:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      transform: none;
+    }
+    .btn-copy-location {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 0.74rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+    .btn-copy-location:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+    }
+    .location-status-hint {
+      font-size: 0.74rem;
+      margin-top: 4px;
+      min-height: 18px;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+  </style>
 </head>
 <body>
 
@@ -41,7 +101,7 @@
         <div class="user-profile-summary">
           <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" alt="Avatar">
           <div class="user-info-text">
-            <span class="user-info-name js-user-name">Sarah Jenkins</span>
+            <span class="user-info-name js-user-name">Customer</span>
             <span class="user-info-role">Customer</span>
           </div>
         </div>
@@ -108,7 +168,10 @@
           <!-- Right Column: Booking Reservation Form -->
           <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px;">
             <h3 style="margin-bottom: 8px;">Reservation Details</h3>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">Complete your booking preferences and travel itinerary.</p>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Complete your booking preferences and travel itinerary.</p>
+
+            <!-- Profile Completeness Gate Notice -->
+            <div id="bookingCompletenessAlert" style="margin-bottom: 20px; display: none;"></div>
 
             <form id="bookingWizardForm" onsubmit="submitWizardBooking(event)">
               <div class="form-row">
@@ -122,26 +185,46 @@
                 </div>
               </div>
 
+              <!-- Popular Location Suggestions -->
+              <datalist id="popularHubLocations">
+                <option value="Mumbai - Bandra Kurla Complex (BKC) Hub">
+                <option value="Mumbai - Chhatrapati Shivaji Maharaj Airport T2 VIP Lounge">
+                <option value="Mumbai - Worli Sea Face Concierge">
+                <option value="Delhi NCR - IGI Airport T3 VIP Lounge">
+                <option value="Delhi NCR - Aerocity Hospitality District">
+                <option value="Bengaluru - UB City Luxury Concourse">
+                <option value="Bengaluru - Kempegowda International Airport Lounge">
+                <option value="Hyderabad - HITEC City Business Hub">
+                <option value="Goa - Dabolim & Mopa Luxury Coastal Hub">
+                <option value="Chennai - Guindy Hub">
+              </datalist>
+
               <div class="form-row">
                 <div class="form-group">
-                  <label>Pickup Location</label>
-                  <select id="pickupLocation" class="form-control">
-                    <option value="Mumbai - Bandra Kurla Complex (BKC)">Mumbai - Bandra Kurla Complex (BKC)</option>
-                    <option value="Delhi NCR - IGI Airport T3 VIP Lounge">Delhi NCR - IGI Airport T3 VIP Lounge</option>
-                    <option value="Bengaluru - UB City Hub">Bengaluru - UB City Hub</option>
-                    <option value="Hyderabad - HITEC City Concourse">Hyderabad - HITEC City Concourse</option>
-                    <option value="Goa - Coastal Suite">Goa - Coastal Suite</option>
-                  </select>
+                  <div class="location-header">
+                    <label for="pickupLocation" style="margin-bottom: 0;">Pickup Location <span style="color: #f87171;">*</span></label>
+                    <button type="button" class="btn-location-gps" id="btnGpsPickup" onclick="detectGpsLocation('pickupLocation', 'btnGpsPickup', 'pickupLocationHint')" title="Detect GPS coordinates and fill address">
+                      <span>📍</span> Use Current Location
+                    </button>
+                  </div>
+                  <input type="text" id="pickupLocation" list="popularHubLocations" class="form-control" placeholder="Type custom address or select hub (e.g. Worli Sea Face, Mumbai)" required autocomplete="street-address" oninput="clearLocationHint('pickupLocationHint')">
+                  <div class="location-status-hint" id="pickupLocationHint">Type any custom pickup address or click 📍 to detect via GPS</div>
                 </div>
+
                 <div class="form-group">
-                  <label>Return Location</label>
-                  <select id="dropLocation" class="form-control">
-                    <option value="Mumbai - Bandra Kurla Complex (BKC)">Mumbai - Bandra Kurla Complex (BKC)</option>
-                    <option value="Delhi NCR - IGI Airport T3 VIP Lounge">Delhi NCR - IGI Airport T3 VIP Lounge</option>
-                    <option value="Bengaluru - UB City Hub">Bengaluru - UB City Hub</option>
-                    <option value="Hyderabad - HITEC City Concourse">Hyderabad - HITEC City Concourse</option>
-                    <option value="Goa - Coastal Suite">Goa - Coastal Suite</option>
-                  </select>
+                  <div class="location-header">
+                    <label for="dropLocation" style="margin-bottom: 0;">Return / Drop Location <span style="color: #f87171;">*</span></label>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                      <button type="button" class="btn-copy-location" onclick="copyPickupToDrop()" title="Copy pickup location to return location">
+                        <span>⇄</span> Same as Pickup
+                      </button>
+                      <button type="button" class="btn-location-gps" id="btnGpsDrop" onclick="detectGpsLocation('dropLocation', 'btnGpsDrop', 'dropLocationHint')" title="Detect GPS coordinates and fill address">
+                        <span>📍</span> Use Current Location
+                      </button>
+                    </div>
+                  </div>
+                  <input type="text" id="dropLocation" list="popularHubLocations" class="form-control" placeholder="Type custom address or select hub (e.g. IGI Airport T3, Delhi)" required autocomplete="street-address" oninput="clearLocationHint('dropLocationHint')">
+                  <div class="location-status-hint" id="dropLocationHint">Type any custom return address or click 📍 to detect via GPS</div>
                 </div>
               </div>
 
@@ -177,7 +260,7 @@
                 <textarea id="bookingNotes" class="form-control" placeholder="Optional notes for our concierge team..."></textarea>
               </div>
 
-              <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+              <button type="submit" id="btnSubmitBooking" class="btn btn-primary btn-lg" style="width: 100%;">
                 Submit Booking Request &rarr;
               </button>
             </form>
@@ -200,6 +283,49 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       auth.guard(['customer']);
+
+      // Check user profile completeness dynamically
+      let user = auth.getUser();
+      try {
+        const meRes = await api.auth.getMe();
+        if (meRes && meRes.user) {
+          user = meRes.user;
+          localStorage.setItem('apex_user', JSON.stringify(user));
+        }
+      } catch (e) {}
+
+      if (user && auth.checkProfileCompleteness) {
+        const comp = auth.checkProfileCompleteness(user);
+        const alertBox = document.getElementById('bookingCompletenessAlert');
+        const submitBtn = document.getElementById('btnSubmitBooking');
+        if (alertBox) {
+          alertBox.style.display = 'block';
+          if (!comp.isComplete) {
+            alertBox.innerHTML = `
+              <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: var(--radius-md); padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <strong style="color: #f87171; font-size: 0.95rem;">⚠️ Profile Incomplete (${comp.percentage}%)</strong>
+                  <a href="profile.html" class="btn btn-primary btn-sm" style="font-size: 0.78rem;">Complete Profile &rarr;</a>
+                </div>
+                <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4;">
+                  You must complete 100% of your profile before reserving a luxury vehicle.
+                  <div style="margin-top: 6px;">Missing required fields: <strong>${comp.missing.join(', ')}</strong></div>
+                </div>
+              </div>
+            `;
+            if (submitBtn) {
+              submitBtn.innerHTML = `⚠️ Complete 100% Profile to Reserve (Currently ${comp.percentage}%)`;
+            }
+          } else {
+            alertBox.innerHTML = `
+              <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+                <span style="color: #34d399; font-size: 0.88rem; font-weight: 600;">✓ 100% Profile Completed — Authorized to Reserve</span>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">KYC Verified</span>
+              </div>
+            `;
+          }
+        }
+      }
 
       // Default dates
       const today = new Date().toISOString().split('T')[0];
@@ -238,6 +364,139 @@
           <div>• Insured & Ready</div>
         </div>
       `;
+
+      // Set initial vehicle hub location if inputs are currently empty
+      if (v.location) {
+        const pInput = document.getElementById('pickupLocation');
+        const dInput = document.getElementById('dropLocation');
+        if (pInput && !pInput.value) pInput.value = v.location;
+        if (dInput && !dInput.value) dInput.value = v.location;
+      }
+    }
+
+    function copyPickupToDrop() {
+      const pickupVal = document.getElementById('pickupLocation').value.trim();
+      if (!pickupVal) {
+        showToast('Please enter or detect a pickup location first.', 'info');
+        document.getElementById('pickupLocation').focus();
+        return;
+      }
+      const dropInput = document.getElementById('dropLocation');
+      dropInput.value = pickupVal;
+      showToast('Return location set same as pickup.', 'success');
+      const dropHint = document.getElementById('dropLocationHint');
+      if (dropHint) dropHint.innerHTML = '<span style="color: #34d399;">✓ Same as pickup location. You can edit this manually anytime.</span>';
+    }
+
+    function clearLocationHint(hintId) {
+      const el = document.getElementById(hintId);
+      if (el && el.innerHTML.includes('GPS detected:')) {
+        el.innerHTML = '<span style="color: var(--text-muted);">Custom address edited manually</span>';
+      }
+    }
+
+    async function detectGpsLocation(inputId, buttonId, hintId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(buttonId);
+      const hint = document.getElementById(hintId);
+
+      if (!navigator.geolocation) {
+        showToast('Geolocation is not supported by your browser.', 'error');
+        if (hint) hint.innerHTML = '<span style="color: #f87171;">⚠️ Geolocation is not supported by your browser.</span>';
+        return;
+      }
+
+      const originalBtnHtml = btn ? btn.innerHTML : '<span>📍</span> Use Current Location';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Locating GPS...';
+      }
+      if (hint) {
+        hint.innerHTML = '<span style="color: var(--accent-gold);">📡 Requesting browser GPS permission & coordinates...</span>';
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude, accuracy } = position.coords;
+          if (btn) btn.innerHTML = '<span>🌐</span> Resolving Address...';
+          if (hint) hint.innerHTML = `<span style="color: var(--accent-gold);">📍 Coordinates detected (${latitude.toFixed(4)}, ${longitude.toFixed(4)}). Resolving street address...</span>`;
+
+          try {
+            // Free reverse geocoding via OpenStreetMap Nominatim API
+            const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=18&addressdetails=1`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 6500); // 6.5s timeout
+
+            const res = await fetch(url, {
+              headers: { 'Accept-Language': 'en' },
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            let formattedAddress = '';
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.address) {
+                const addr = data.address;
+                const parts = [];
+                if (addr.building || addr.house_name || addr.house_number) parts.push(addr.building || addr.house_name || addr.house_number);
+                if (addr.road || addr.street || addr.pedestrian) parts.push(addr.road || addr.street || addr.pedestrian);
+                if (addr.neighbourhood || addr.suburb || addr.residential) parts.push(addr.neighbourhood || addr.suburb || addr.residential);
+                if (addr.city || addr.town || addr.village || addr.county) parts.push(addr.city || addr.town || addr.village || addr.county);
+                if (addr.state) parts.push(addr.state);
+                if (addr.postcode) parts.push(addr.postcode);
+                if (addr.country) parts.push(addr.country);
+                formattedAddress = parts.join(', ');
+              }
+              if (!formattedAddress && data && data.display_name) {
+                formattedAddress = data.display_name;
+              }
+            }
+
+            if (!formattedAddress) {
+              formattedAddress = `Location (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`;
+            }
+
+            input.value = formattedAddress;
+            input.focus();
+            showToast('📍 Current location detected and applied! You can edit it manually.', 'success');
+            if (hint) {
+              hint.innerHTML = `<span style="color: #34d399;">✓ GPS detected: ${latitude.toFixed(4)}, ${longitude.toFixed(4)} (±${Math.round(accuracy)}m). You can edit this address manually.</span>`;
+            }
+          } catch (geoErr) {
+            console.warn('Reverse geocoding network notice:', geoErr);
+            const fallbackCoord = `GPS Location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+            input.value = fallbackCoord;
+            input.focus();
+            showToast('GPS coordinates detected. You can edit the text with your exact address.', 'info');
+            if (hint) {
+              hint.innerHTML = `<span style="color: #fbbf24;">✓ GPS coordinates filled (${latitude.toFixed(4)}, ${longitude.toFixed(4)}). Please edit or add your exact building/landmark.</span>`;
+            }
+          } finally {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = originalBtnHtml;
+            }
+          }
+        },
+        (error) => {
+          let msg = 'Could not access GPS location.';
+          if (error.code === 1) msg = 'Location access denied. Please enable GPS permissions in browser settings or type address manually.';
+          else if (error.code === 2) msg = 'Location position unavailable. Please type your address manually.';
+          else if (error.code === 3) msg = 'Location request timed out. Please try again or type manually.';
+          showToast(msg, 'error');
+          if (hint) hint.innerHTML = `<span style="color: #f87171;">⚠️ ${msg}</span>`;
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 30000
+        }
+      );
     }
 
     function triggerPriceRecalc() {

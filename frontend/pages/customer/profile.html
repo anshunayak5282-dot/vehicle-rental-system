@@ -8,6 +8,80 @@
   <link rel="stylesheet" href="../../css/dashboard.css">
   <link rel="stylesheet" href="../../css/forms.css">
   <link rel="stylesheet" href="../../css/responsive.css">
+  <style>
+    .avatar-upload-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 16px auto;
+    }
+    .avatar-preview-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent-gold);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      background: #1e293b;
+    }
+    .avatar-upload-badge {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: var(--accent-gold);
+      color: #0b0f19;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      border: 2px solid #0b0f19;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      transition: transform 0.2s ease;
+    }
+    .avatar-upload-badge:hover {
+      transform: scale(1.1);
+    }
+    .completeness-card {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      text-align: left;
+    }
+    .progress-bar-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      transition: width 0.4s ease, background-color 0.4s ease;
+      border-radius: 6px;
+    }
+    .missing-field-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      margin: 2px 2px;
+      border-radius: 4px;
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .field-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+  </style>
 </head>
 <body>
 
@@ -39,7 +113,7 @@
 
       <div class="sidebar-footer">
         <div class="user-profile-summary">
-          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" alt="Avatar">
+          <img src="" class="user-avatar js-user-avatar" alt="Avatar" id="sidebarAvatar">
           <div class="user-info-text">
             <span class="user-info-name js-user-name">Customer</span>
             <span class="user-info-role">Customer</span>
@@ -55,75 +129,122 @@
           <h2>Profile & KYC Verification</h2>
         </div>
         <div class="topbar-actions">
+          <a href="vehicles.html" class="btn btn-primary btn-sm" id="topBookBtn">Explore Fleet & Book</a>
           <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
         </div>
       </header>
 
       <div class="content-body">
         
-        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 32px; max-width: 1100px; margin: 0 auto;">
+        <div style="display: grid; grid-template-columns: 1fr 1.8fr; gap: 32px; max-width: 1100px; margin: 0 auto;">
           
-          <!-- Identity Summary Card -->
+          <!-- Identity & KYC Summary Card -->
           <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; text-align: center;">
-            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" style="width: 110px; height: 110px; margin-bottom: 16px;" alt="Profile">
-            <h3 class="js-user-name">Customer</h3>
-            <p style="color: var(--text-secondary); font-size: 0.85rem;" class="js-user-email">customer@apexrentals.com</p>
+            
+            <!-- Profile Photo with Upload Button -->
+            <div class="avatar-upload-container">
+              <img src="" id="profileAvatarPreview" class="avatar-preview-img js-user-avatar" alt="Profile Photo">
+              <label for="avatarFileInput" class="avatar-upload-badge" title="Upload new profile photo">
+                📷
+              </label>
+              <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="handlePhotoSelected(event)">
+            </div>
+            
+            <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;">
+              <label for="avatarFileInput" class="btn btn-secondary btn-sm" style="cursor: pointer; font-size: 0.78rem;">
+                📷 Choose Photo
+              </label>
+              <button type="button" id="btnRemovePhoto" class="btn btn-secondary btn-sm" style="font-size: 0.78rem; display: none;" onclick="removePhoto()">
+                ✕ Remove
+              </button>
+            </div>
 
-            <div style="margin: 20px 0; padding: 14px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md);">
-              <div style="font-size: 0.8rem; text-transform: uppercase; color: #34d399; font-weight: 700;">Security Status</div>
-              <div style="font-size: 1.1rem; font-weight: 800; color: #34d399; margin-top: 2px;">✓ 100% KYC Verified</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Verified by Operations & KYC Desk</div>
+            <h3 class="js-user-name" id="cardDisplayName">Customer</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem;" class="js-user-email" id="cardEmail">customer@apexrentals.com</p>
+
+            <!-- Dynamic Profile Completeness Card -->
+            <div class="completeness-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: var(--text-main);">Profile Completeness</span>
+                <span id="completenessPercentText" style="font-size: 0.95rem; font-weight: 800; color: var(--accent-gold);">0%</span>
+              </div>
+              <div class="progress-bar-track">
+                <div id="completenessFill" class="progress-bar-fill" style="width: 0%; background: #ef4444;"></div>
+              </div>
+              <div id="completenessStatusText" style="font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary);">
+                Checking completion requirements...
+              </div>
+              <div id="missingFieldsContainer" style="margin-top: 8px;"></div>
+            </div>
+
+            <!-- KYC Status Badge -->
+            <div id="kycStatusBox" style="margin: 20px 0; padding: 14px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md);">
+              <div style="font-size: 0.8rem; text-transform: uppercase; color: #fbbf24; font-weight: 700;">Reservation Permission</div>
+              <div id="kycStatusHeadline" style="font-size: 1rem; font-weight: 800; color: #fbbf24; margin-top: 2px;">⚠️ Incomplete Profile</div>
+              <div id="kycStatusSub" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">100% completion required to reserve vehicles</div>
             </div>
 
             <div style="text-align: left; font-size: 0.85rem; color: var(--text-secondary); border-top: 1px solid var(--border-color); padding-top: 16px;">
-              <div style="margin-bottom: 8px;"><strong>License:</strong> <span id="profLicenseBadge">Verified Renter</span></div>
-              <div style="margin-bottom: 8px;"><strong>Expiry:</strong> Dec 31, 2029</div>
-              <div style="margin-bottom: 8px;"><strong>Proof:</strong> Government ID Verified</div>
-              <div><strong>Rating:</strong> ⭐⭐⭐⭐⭐ 5.0 (VIP Renter)</div>
+              <div style="margin-bottom: 8px;"><strong>License:</strong> <span id="profLicenseBadge" style="color: var(--text-main);">Not Provided</span></div>
+              <div style="margin-bottom: 8px;"><strong>Location:</strong> <span id="profLocationBadge" style="color: var(--text-main);">Not Provided</span></div>
+              <div style="margin-bottom: 8px;"><strong>Storage:</strong> <span style="color: #34d399;">🍃 MongoDB Database</span></div>
             </div>
           </div>
 
           <!-- Update Profile Form -->
           <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px;">
-            <h3 style="margin-bottom: 8px;">Personal Information</h3>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">Manage your contact and residential address details.</p>
+            <h3 style="margin-bottom: 8px;">Personal & Rental Information</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">
+              Fill in all 7 genuine profile details. Empty fields remain blank until entered by you. Vehicle reservations require 100% profile completion.
+            </p>
 
-            <form onsubmit="handleProfileUpdate(event)">
+            <form id="profileForm" onsubmit="handleProfileUpdate(event)">
               <div class="form-row">
                 <div class="form-group">
-                  <label>Full Name</label>
-                  <input type="text" id="profName" class="form-control" placeholder="Enter Full Name" required>
+                  <label for="profName">Full Legal Name <span style="color: #f87171;">*</span></label>
+                  <input type="text" id="profName" class="form-control" placeholder="Enter Full Legal Name" required oninput="evaluateLiveCompleteness()">
+                  <div class="field-hint">Must match your driving license and government ID</div>
                 </div>
                 <div class="form-group">
-                  <label>Contact Phone</label>
-                  <input type="tel" id="profPhone" class="form-control" placeholder="+91 98201 00000" required>
+                  <label for="profPhone">Contact Phone <span style="color: #f87171;">*</span></label>
+                  <input type="tel" id="profPhone" class="form-control" placeholder="+91 98201 00000" required oninput="evaluateLiveCompleteness()">
+                  <div class="field-hint">Required for booking alerts & chauffeur dispatch</div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="profEmail">Email Address</label>
+                  <input type="email" id="profEmail" class="form-control" placeholder="email@domain.com" required readonly style="opacity: 0.7;">
+                </div>
+                <div class="form-group">
+                  <label for="profLicense">Driving License Number <span style="color: #f87171;">*</span></label>
+                  <input type="text" id="profLicense" class="form-control" placeholder="e.g. MH-02-20260012345" required style="text-transform: uppercase;" oninput="evaluateLiveCompleteness()">
+                  <div class="field-hint">Mandatory for luxury fleet insurance coverage</div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="profCity">City <span style="color: #f87171;">*</span></label>
+                  <input type="text" id="profCity" class="form-control" placeholder="Enter City (e.g. Mumbai, Bengaluru)" required oninput="evaluateLiveCompleteness()">
+                </div>
+                <div class="form-group">
+                  <label for="profZip">Postal Code / PIN <span style="color: #f87171;">*</span></label>
+                  <input type="text" id="profZip" class="form-control" placeholder="e.g. 400051" required oninput="evaluateLiveCompleteness()">
                 </div>
               </div>
 
               <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="profEmail" class="form-control" placeholder="customer@domain.com" required readonly style="opacity: 0.7;">
+                <label for="profAddress">Residential / Street Address <span style="color: #f87171;">*</span></label>
+                <textarea id="profAddress" class="form-control" rows="2" placeholder="Enter Residential Address" required oninput="evaluateLiveCompleteness()"></textarea>
               </div>
 
-              <div class="form-row">
-                <div class="form-group">
-                  <label>City</label>
-                  <input type="text" id="profCity" class="form-control" value="Mumbai">
-                </div>
-                <div class="form-group">
-                  <label>Postal Code</label>
-                  <input type="text" id="profZip" class="form-control" value="400026">
-                </div>
+              <div style="display: flex; gap: 12px; align-items: center; margin-top: 24px;">
+                <button type="submit" id="btnSaveProfile" class="btn btn-primary btn-lg" style="flex: 1;">
+                  💾 Save Genuine Profile & Sync with MongoDB
+                </button>
               </div>
-
-              <div class="form-group">
-                <label>Street Address</label>
-                <textarea id="profAddress" class="form-control" rows="2">14, Altamount Road, Cumballa Hill</textarea>
-              </div>
-
-              <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
-                Save Profile Changes
-              </button>
             </form>
           </div>
 
@@ -138,46 +259,236 @@
   <script src="../../js/common.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    const DEFAULT_AVATAR_PLACEHOLDER = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%2394a3b8'><circle cx='50' cy='36' r='22'/><path d='M14 88c0-18 16-28 36-28s36 10 36 28z'/></svg>";
+    let currentPhotoBase64 = '';
+
+    document.addEventListener('DOMContentLoaded', async () => {
       auth.guard(['customer']);
-      const user = auth.getUser();
-      if (user) {
-        if (document.getElementById('profName')) document.getElementById('profName').value = user.full_name || user.name || '';
-        if (document.getElementById('profPhone')) document.getElementById('profPhone').value = user.phone || '';
-        if (document.getElementById('profEmail')) document.getElementById('profEmail').value = user.email || '';
-        if (document.getElementById('profLicenseBadge') && user.license_number) {
-          document.getElementById('profLicenseBadge').textContent = user.license_number;
-        }
-      }
+      await loadGenuineProfile();
     });
+
+    async function loadGenuineProfile() {
+      // 1. Initial fill from localStorage if present
+      let user = auth.getUser();
+      if (user) {
+        populateFields(user);
+      }
+
+      // 2. Fetch fresh genuine data directly from MongoDB backend
+      try {
+        const res = await api.auth.getMe();
+        if (res && res.success && res.user) {
+          user = res.user;
+          localStorage.setItem('apex_user', JSON.stringify(user));
+          populateFields(user);
+        }
+      } catch (err) {
+        console.warn('Could not refresh from MongoDB getMe:', err);
+      }
+
+      evaluateLiveCompleteness();
+    }
+
+    function populateFields(user) {
+      if (!user) return;
+
+      const profile = user.profile || {};
+      const fullName = user.full_name || user.name || profile.full_name || profile.name || '';
+      const phone = user.phone || '';
+      const email = user.email || '';
+      const license = user.license_number || profile.license_number || '';
+      const city = user.city || profile.city || '';
+      const zip = user.postal_code || user.zip || profile.postal_code || '';
+      const address = user.address || profile.address || '';
+      const avatar = user.avatar_url || profile.avatar_url || '';
+
+      document.getElementById('profName').value = fullName;
+      document.getElementById('profPhone').value = phone;
+      document.getElementById('profEmail').value = email;
+      document.getElementById('profLicense').value = license;
+      document.getElementById('profCity').value = city;
+      document.getElementById('profZip').value = zip;
+      document.getElementById('profAddress').value = address;
+
+      if (avatar) {
+        currentPhotoBase64 = avatar;
+        setAvatarDisplays(avatar);
+        document.getElementById('btnRemovePhoto').style.display = 'inline-block';
+      } else {
+        currentPhotoBase64 = '';
+        setAvatarDisplays(DEFAULT_AVATAR_PLACEHOLDER);
+        document.getElementById('btnRemovePhoto').style.display = 'none';
+      }
+
+      document.getElementById('cardDisplayName').textContent = fullName || 'Customer';
+      document.getElementById('cardEmail').textContent = email || 'customer@apexrentals.com';
+      document.getElementById('profLicenseBadge').textContent = license || 'Not Provided';
+      document.getElementById('profLocationBadge').textContent = city ? `${city} ${zip ? '(' + zip + ')' : ''}` : 'Not Provided';
+    }
+
+    function setAvatarDisplays(src) {
+      const preview = document.getElementById('profileAvatarPreview');
+      if (preview) preview.src = src;
+      const sidebar = document.getElementById('sidebarAvatar');
+      if (sidebar) sidebar.src = src;
+      document.querySelectorAll('.js-user-avatar').forEach(img => {
+        img.src = src;
+      });
+    }
+
+    function handlePhotoSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (file.size > 8 * 1024 * 1024) {
+        showToast('Image file size is too large (max 8MB).', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Str = e.target.result;
+        currentPhotoBase64 = base64Str;
+        setAvatarDisplays(base64Str);
+        document.getElementById('btnRemovePhoto').style.display = 'inline-block';
+        showToast('Photo selected! Click "Save Genuine Profile" to commit.', 'info');
+        evaluateLiveCompleteness();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removePhoto() {
+      currentPhotoBase64 = '';
+      setAvatarDisplays(DEFAULT_AVATAR_PLACEHOLDER);
+      document.getElementById('avatarFileInput').value = '';
+      document.getElementById('btnRemovePhoto').style.display = 'none';
+      evaluateLiveCompleteness();
+    }
+
+    function evaluateLiveCompleteness() {
+      const name = document.getElementById('profName').value.trim();
+      const phone = document.getElementById('profPhone').value.trim();
+      const license = document.getElementById('profLicense').value.trim();
+      const city = document.getElementById('profCity').value.trim();
+      const zip = document.getElementById('profZip').value.trim();
+      const address = document.getElementById('profAddress').value.trim();
+      const hasPhoto = !!currentPhotoBase64 && currentPhotoBase64 !== DEFAULT_AVATAR_PLACEHOLDER;
+
+      const missing = [];
+      if (!hasPhoto) missing.push('Profile Photo');
+      if (!name) missing.push('Full Legal Name');
+      if (!phone) missing.push('Contact Phone');
+      if (!license) missing.push('Driving License Number');
+      if (!city) missing.push('City');
+      if (!zip) missing.push('Postal Code / PIN');
+      if (!address) missing.push('Street Address');
+
+      const totalFields = 7;
+      const completedFields = totalFields - missing.length;
+      const percentage = Math.round((completedFields / totalFields) * 100);
+
+      const fill = document.getElementById('completenessFill');
+      const percentText = document.getElementById('completenessPercentText');
+      const statusText = document.getElementById('completenessStatusText');
+      const missingContainer = document.getElementById('missingFieldsContainer');
+      const kycBox = document.getElementById('kycStatusBox');
+      const kycHeadline = document.getElementById('kycStatusHeadline');
+      const kycSub = document.getElementById('kycStatusSub');
+
+      percentText.textContent = `${percentage}%`;
+      fill.style.width = `${percentage}%`;
+
+      if (percentage === 100) {
+        fill.style.background = '#10b981';
+        percentText.style.color = '#34d399';
+        statusText.innerHTML = '<span style="color: #34d399; font-weight: 700;">✓ 100% Profile Completed!</span> You are fully verified to book luxury vehicles.';
+        missingContainer.innerHTML = '';
+
+        kycBox.style.background = 'rgba(16, 185, 129, 0.12)';
+        kycBox.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+        kycHeadline.textContent = '✓ 100% KYC Complete & Authorized';
+        kycHeadline.style.color = '#34d399';
+        kycSub.textContent = 'Active reservation permissions unlocked';
+      } else {
+        fill.style.background = percentage >= 50 ? '#f59e0b' : '#ef4444';
+        percentText.style.color = percentage >= 50 ? '#fbbf24' : '#f87171';
+        statusText.innerHTML = `Complete remaining <strong>${missing.length}</strong> field(s) to unlock vehicle booking:`;
+        missingContainer.innerHTML = missing.map(m => `<span class="missing-field-tag">• ${m}</span>`).join(' ');
+
+        kycBox.style.background = 'rgba(239, 68, 68, 0.12)';
+        kycBox.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+        kycHeadline.textContent = `⚠️ Profile Incomplete (${percentage}%)`;
+        kycHeadline.style.color = '#f87171';
+        kycSub.textContent = 'Vehicle bookings are blocked until all 7 fields are 100% complete';
+      }
+
+      // Update badges
+      document.getElementById('cardDisplayName').textContent = name || 'Customer';
+      document.getElementById('profLicenseBadge').textContent = license || 'Not Provided';
+      document.getElementById('profLocationBadge').textContent = city ? `${city} ${zip ? '(' + zip + ')' : ''}` : 'Not Provided';
+
+      return { percentage, isComplete: missing.length === 0, missing };
+    }
 
     async function handleProfileUpdate(e) {
       e.preventDefault();
       const user = auth.getUser();
-      if (!user) return;
+      if (!user) {
+        showToast('You must be logged in to update your profile.', 'error');
+        return;
+      }
 
       const updatedName = document.getElementById('profName').value.trim();
       const updatedPhone = document.getElementById('profPhone').value.trim();
+      const updatedLicense = document.getElementById('profLicense').value.trim().toUpperCase();
       const updatedCity = document.getElementById('profCity').value.trim();
+      const updatedZip = document.getElementById('profZip').value.trim();
       const updatedAddress = document.getElementById('profAddress').value.trim();
+      const avatarUrlToSave = currentPhotoBase64 && currentPhotoBase64 !== DEFAULT_AVATAR_PLACEHOLDER ? currentPhotoBase64 : null;
 
-      user.full_name = updatedName;
-      user.name = updatedName;
-      user.phone = updatedPhone;
-      user.city = updatedCity;
-      user.address = updatedAddress;
-      localStorage.setItem('apex_user', JSON.stringify(user));
+      const saveBtn = document.getElementById('btnSaveProfile');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving to MongoDB...';
 
       try {
-        if (user.id) {
-          await api.users.update(user.id, { full_name: updatedName, name: updatedName, phone: updatedPhone });
-        }
-      } catch (err) {
-        console.warn('Backend update error:', err);
-      }
+        const payload = {
+          full_name: updatedName,
+          name: updatedName,
+          phone: updatedPhone,
+          license_number: updatedLicense,
+          city: updatedCity,
+          postal_code: updatedZip,
+          zip: updatedZip,
+          address: updatedAddress,
+          avatar_url: avatarUrlToSave
+        };
 
-      showToast('Profile information updated successfully!', 'success');
-      document.querySelectorAll('.js-user-name').forEach(el => el.textContent = updatedName);
+        const targetId = user.id || user._id;
+        const res = await api.users.update(targetId, payload);
+
+        // Update local session storage with confirmed genuine backend data
+        const updatedUser = {
+          ...user,
+          full_name: updatedName,
+          name: updatedName,
+          phone: updatedPhone,
+          license_number: updatedLicense,
+          city: updatedCity,
+          postal_code: updatedZip,
+          address: updatedAddress,
+          avatar_url: avatarUrlToSave
+        };
+        localStorage.setItem('apex_user', JSON.stringify(updatedUser));
+
+        showToast('Profile updated & saved successfully in MongoDB!', 'success');
+        evaluateLiveCompleteness();
+      } catch (err) {
+        console.error('Update error:', err);
+        showToast(err.message || 'Failed to update profile.', 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Save Genuine Profile & Sync with MongoDB';
+      }
     }
   </script>
 </body>

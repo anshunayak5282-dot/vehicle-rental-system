@@ -41,7 +41,7 @@
         <div class="user-profile-summary">
           <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" alt="Avatar">
           <div class="user-info-text">
-            <span class="user-info-name js-user-name">Sarah Jenkins</span>
+            <span class="user-info-name js-user-name">Customer</span>
             <span class="user-info-role">Customer</span>
           </div>
         </div>
@@ -231,7 +231,12 @@
               <div style="font-weight: 600;">${b.vehicle_name}</div>
               <div style="font-size: 0.75rem; color: var(--text-muted);">${b.vehicle_number || ''}</div>
             </td>
-            <td>${b.start_date} &rarr; ${b.end_date}</td>
+            <td>
+              <div>${b.start_date} &rarr; ${b.end_date}</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Pickup: ${b.pickup_location || 'Hub'} | Return: ${b.drop_location || 'Hub'}">
+                📍 ${b.pickup_location || 'Hub'} &rarr; ${b.drop_location || 'Hub'}
+              </div>
+            </td>
             <td>${b.driver_required ? 'Uniformed Chauffeur' : 'Self-Drive'}</td>
             <td><strong style="color: var(--accent-gold);">${formatCurrency(b.total_amount)}</strong></td>
             <td><span class="badge ${badgeClass}">${b.status}</span></td>

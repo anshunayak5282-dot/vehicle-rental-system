@@ -231,7 +231,7 @@ function handleLocalFallback(endpoint, options) {
       id: newId,
       booking_code: `BK-2026-${100 + newId}`,
       customer_id: body.customer_id || 2,
-      customer_name: body.customer_name || 'Sarah Jenkins',
+      customer_name: body.customer_name || 'Customer Renter',
       customer_email: 'customer@gmail.com',
       customer_phone: '+91 98201 10102',
       vehicle_id: v ? v.id : 1,

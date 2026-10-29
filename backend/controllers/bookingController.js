@@ -162,6 +162,23 @@ async function createBooking(req, res, next) {
       return res.status(400).json({ success: false, message: 'Vehicle and rental dates are required.' });
     }
 
+    const cleanPickup = (pickup_location || '').trim();
+    const cleanDrop = (drop_location || '').trim();
+
+    if (!cleanPickup || cleanPickup.length < 3) {
+      return res.status(400).json({
+        success: false,
+        message: 'A valid pickup location address (minimum 3 characters) is required.'
+      });
+    }
+
+    if (!cleanDrop || cleanDrop.length < 3) {
+      return res.status(400).json({
+        success: false,
+        message: 'A valid return/drop-off location address (minimum 3 characters) is required.'
+      });
+    }
+
     const customer_id = req.user ? req.user.id : 2;
     const start = new Date(start_date);
     const end = new Date(end_date);
@@ -270,8 +287,8 @@ async function createBooking(req, res, next) {
         total_amount: final_total,
         driver_required: Boolean(driver_required),
         insurance_opted: Boolean(insurance_opted),
-        pickup_location: pickup_location || vehicle.location || 'Mumbai - BKC Hub',
-        drop_location: drop_location || vehicle.location || 'Mumbai - BKC Hub',
+        pickup_location: cleanPickup,
+        drop_location: cleanDrop,
         status: 'Pending',
         payment_status: 'Unpaid',
         notes: notes || ''
@@ -317,7 +334,7 @@ async function createBooking(req, res, next) {
         [
           customer_id, vehicle_id, start_date, end_date, total_days, daily_rate, total_amount,
           driver_required ? 1 : 0, insurance_opted ? 1 : 0,
-          pickup_location || 'Mumbai - BKC Hub', drop_location || 'Mumbai - BKC Hub', notes || null
+          cleanPickup, cleanDrop, notes || null
         ]
       );
 
@@ -368,8 +385,8 @@ async function createBooking(req, res, next) {
       total_amount: final_total,
       driver_required: Boolean(driver_required),
       insurance_opted: Boolean(insurance_opted),
-      pickup_location: pickup_location || 'Mumbai - BKC Hub',
-      drop_location: drop_location || 'Mumbai - BKC Hub',
+      pickup_location: cleanPickup,
+      drop_location: cleanDrop,
       status: 'Pending',
       payment_status: 'Pending',
       notes: notes || '',

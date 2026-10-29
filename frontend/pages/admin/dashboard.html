@@ -234,7 +234,12 @@
             <td><strong>#${b.id}</strong></td>
             <td><strong>${b.customer_name}</strong></td>
             <td>${b.vehicle_name}</td>
-            <td>${b.start_date} &rarr; ${b.end_date}</td>
+            <td>
+              <div>${b.start_date} &rarr; ${b.end_date}</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Pickup: ${b.pickup_location || 'Hub'} &rarr; Drop: ${b.drop_location || 'Hub'}">
+                📍 ${b.pickup_location || 'Hub'} &rarr; ${b.drop_location || 'Hub'}
+              </div>
+            </td>
             <td>${b.driver_required ? (b.driver_name || 'Driver Assigned') : 'Self-Drive'}</td>
             <td><strong style="color: var(--accent-gold);">${formatCurrency(b.total_amount)}</strong></td>
             <td><span class="badge ${badgeClass}">${b.status}</span></td>

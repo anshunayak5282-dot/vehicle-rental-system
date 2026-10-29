@@ -89,7 +89,7 @@ async function showInvoice(bookingId) {
     invoice = {
       invoice_number: `INV-2026-${String(bookingId).padStart(4, '0')}`,
       booking_id: bookingId,
-      customer_name: 'Sarah Jenkins',
+      customer_name: 'Customer Renter',
       issued_at: new Date().toLocaleDateString(),
       subtotal: 54000,
       tax_amount: 5400,
@@ -137,7 +137,7 @@ async function showInvoice(bookingId) {
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; font-size: 0.9rem;">
         <div>
           <strong style="color: #475569; display: block; margin-bottom: 4px;">BILLED TO:</strong>
-          <p style="margin: 0; font-weight: 600;">${invoice.customer_name || 'Sarah Jenkins'}</p>
+          <p style="margin: 0; font-weight: 600;">${invoice.customer_name || 'Customer Renter'}</p>
           <p style="margin: 0; color: #64748b;">Customer ID: #2 • Verified Renter</p>
         </div>
         <div style="text-align: right;">

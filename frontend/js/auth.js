@@ -82,6 +82,41 @@ const auth = {
     window.location.href = `${prefix}${targetPath}`;
   },
 
+  checkProfileCompleteness(user) {
+    if (!user) return { percentage: 0, isComplete: false, missing: ['User Profile'] };
+    const missing = [];
+    const name = (user.full_name || user.name || (user.profile && (user.profile.full_name || user.profile.name)) || '').trim();
+    if (!name) missing.push('Full Name');
+
+    const phone = (user.phone || '').trim();
+    if (!phone) missing.push('Contact Phone');
+
+    const license = (user.license_number || (user.profile && user.profile.license_number) || '').trim();
+    if (!license) missing.push('Driving License Number');
+
+    const city = (user.city || (user.profile && user.profile.city) || '').trim();
+    if (!city) missing.push('City');
+
+    const zip = (user.postal_code || user.zip || (user.profile && user.profile.postal_code) || '').trim();
+    if (!zip) missing.push('Postal Code / PIN');
+
+    const address = (user.address || (user.profile && user.profile.address) || '').trim();
+    if (!address) missing.push('Street Address');
+
+    const avatar = (user.avatar_url || (user.profile && user.profile.avatar_url) || '').trim();
+    if (!avatar) missing.push('Profile Photo');
+
+    const totalFields = 7;
+    const completedFields = totalFields - missing.length;
+    const percentage = Math.round((completedFields / totalFields) * 100);
+
+    return {
+      percentage,
+      isComplete: missing.length === 0,
+      missing
+    };
+  },
+
   // Route guard
   guard(allowedRoles = []) {
     const user = this.getUser();
