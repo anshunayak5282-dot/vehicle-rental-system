@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | Apex Fleet Vehicle Rental System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh; background: var(--bg-main);">
+
+  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 20px;">
+    
+    <div style="width: 100%; max-width: 460px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 40px; box-shadow: var(--shadow-lg);">
+      
+      <div style="text-align: center; margin-bottom: 30px;">
+        <a href="index.html" class="logo-brand" style="justify-content: center; margin-bottom: 12px;">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+        <h2 style="font-size: 1.6rem;">Welcome Back</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">Sign in to access your role-based portal</p>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="name@domain.com" autocomplete="email" required>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" autocomplete="current-password" required>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; font-size: 0.85rem;">
+          <label class="checkbox-label">
+            <input type="checkbox" checked> Remember me
+          </label>
+          <a href="#" style="color: var(--accent-gold);">Forgot password?</a>
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 20px;">
+          Sign In to Portal
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-bottom: 24px; font-size: 0.85rem; color: var(--text-secondary);">
+        Don't have an account? <a href="register.html" style="color: var(--accent-gold); font-weight: 600;">Register as Customer</a>
+      </div>
+
+      <!-- Quick 1-Click Role Logins for testing -->
+      <div style="border-top: 1px dashed var(--border-color); padding-top: 20px;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase; margin-bottom: 12px; text-align: center;">
+          ⚡ 1-Click Demo Login (4 Core Portals)
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+          <button class="btn btn-secondary btn-sm" onclick="auth.switchDemoRole('admin')">👑 System Admin</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.switchDemoRole('customer')">🚗 Customer</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.switchDemoRole('manager')">📋 Rental Manager</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.switchDemoRole('driver')">🧭 Chauffeur / Driver</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js"></script>
+
+  <script>
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginSubmitBtn');
+
+      if (!email || !password) {
+        showToast('Please enter both email and password.', 'error');
+        return;
+      }
+
+      const origText = btn ? btn.innerHTML : 'Sign In';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = 'Signing In...';
+      }
+
+      try {
+        const res = await api.auth.login({ email, password });
+        if (res.success) {
+          auth.setSession(res.token, res.user);
+          showToast(`Welcome back, ${res.user.name}!`, 'success');
+          const targetPath = ROLE_DASHBOARDS[res.user.role] || 'pages/customer/dashboard.html';
+          setTimeout(() => {
+            window.location.href = targetPath;
+          }, 600);
+        } else {
+          showToast(res.message || 'Login failed', 'error');
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+          }
+        }
+      } catch (err) {
+        showToast(err.message || 'Login failed', 'error');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = origText;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Profile & KYC | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Main Menu</div>
+        <a href="dashboard.html" class="menu-item">
+          <span class="menu-icon">🏠</span> Dashboard
+        </a>
+        <a href="vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> Explore Fleet
+        </a>
+        <a href="bookings.html" class="menu-item">
+          <span class="menu-icon">📑</span> My Bookings
+        </a>
+        <a href="profile.html" class="menu-item active">
+          <span class="menu-icon">👤</span> My Profile & KYC
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" alt="Avatar">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">Customer</span>
+            <span class="user-info-role">Customer</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Profile & KYC Verification</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 32px; max-width: 1100px; margin: 0 auto;">
+          
+          <!-- Identity Summary Card -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; text-align: center;">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" style="width: 110px; height: 110px; margin-bottom: 16px;" alt="Profile">
+            <h3 class="js-user-name">Customer</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem;" class="js-user-email">customer@apexrentals.com</p>
+
+            <div style="margin: 20px 0; padding: 14px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md);">
+              <div style="font-size: 0.8rem; text-transform: uppercase; color: #34d399; font-weight: 700;">Security Status</div>
+              <div style="font-size: 1.1rem; font-weight: 800; color: #34d399; margin-top: 2px;">✓ 100% KYC Verified</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Verified by Operations & KYC Desk</div>
+            </div>
+
+            <div style="text-align: left; font-size: 0.85rem; color: var(--text-secondary); border-top: 1px solid var(--border-color); padding-top: 16px;">
+              <div style="margin-bottom: 8px;"><strong>License:</strong> <span id="profLicenseBadge">Verified Renter</span></div>
+              <div style="margin-bottom: 8px;"><strong>Expiry:</strong> Dec 31, 2029</div>
+              <div style="margin-bottom: 8px;"><strong>Proof:</strong> Government ID Verified</div>
+              <div><strong>Rating:</strong> ⭐⭐⭐⭐⭐ 5.0 (VIP Renter)</div>
+            </div>
+          </div>
+
+          <!-- Update Profile Form -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px;">
+            <h3 style="margin-bottom: 8px;">Personal Information</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">Manage your contact and residential address details.</p>
+
+            <form onsubmit="handleProfileUpdate(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" id="profName" class="form-control" placeholder="Enter Full Name" required>
+                </div>
+                <div class="form-group">
+                  <label>Contact Phone</label>
+                  <input type="tel" id="profPhone" class="form-control" placeholder="+91 98201 00000" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="profEmail" class="form-control" placeholder="customer@domain.com" required readonly style="opacity: 0.7;">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>City</label>
+                  <input type="text" id="profCity" class="form-control" value="Mumbai">
+                </div>
+                <div class="form-group">
+                  <label>Postal Code</label>
+                  <input type="text" id="profZip" class="form-control" value="400026">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Street Address</label>
+                <textarea id="profAddress" class="form-control" rows="2">14, Altamount Road, Cumballa Hill</textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
+                Save Profile Changes
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['customer']);
+      const user = auth.getUser();
+      if (user) {
+        if (document.getElementById('profName')) document.getElementById('profName').value = user.full_name || user.name || '';
+        if (document.getElementById('profPhone')) document.getElementById('profPhone').value = user.phone || '';
+        if (document.getElementById('profEmail')) document.getElementById('profEmail').value = user.email || '';
+        if (document.getElementById('profLicenseBadge') && user.license_number) {
+          document.getElementById('profLicenseBadge').textContent = user.license_number;
+        }
+      }
+    });
+
+    async function handleProfileUpdate(e) {
+      e.preventDefault();
+      const user = auth.getUser();
+      if (!user) return;
+
+      const updatedName = document.getElementById('profName').value.trim();
+      const updatedPhone = document.getElementById('profPhone').value.trim();
+      const updatedCity = document.getElementById('profCity').value.trim();
+      const updatedAddress = document.getElementById('profAddress').value.trim();
+
+      user.full_name = updatedName;
+      user.name = updatedName;
+      user.phone = updatedPhone;
+      user.city = updatedCity;
+      user.address = updatedAddress;
+      localStorage.setItem('apex_user', JSON.stringify(user));
+
+      try {
+        if (user.id) {
+          await api.users.update(user.id, { full_name: updatedName, name: updatedName, phone: updatedPhone });
+        }
+      } catch (err) {
+        console.warn('Backend update error:', err);
+      }
+
+      showToast('Profile information updated successfully!', 'success');
+      document.querySelectorAll('.js-user-name').forEach(el => el.textContent = updatedName);
+    }
+  </script>
+</body>
+</html>

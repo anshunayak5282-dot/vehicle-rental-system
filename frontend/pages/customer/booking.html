@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserve Vehicle | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Main Menu</div>
+        <a href="dashboard.html" class="menu-item">
+          <span class="menu-icon">🏠</span> Dashboard
+        </a>
+        <a href="vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> Explore Fleet
+        </a>
+        <a href="bookings.html" class="menu-item">
+          <span class="menu-icon">📑</span> My Bookings
+        </a>
+        <a href="profile.html" class="menu-item">
+          <span class="menu-icon">👤</span> My Profile & KYC
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" alt="Avatar">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">Sarah Jenkins</span>
+            <span class="user-info-role">Customer</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Vehicle Reservation Wizard</h2>
+        </div>
+        <div class="topbar-actions">
+          <a href="vehicles.html" class="btn btn-secondary btn-sm">&larr; Back to Fleet</a>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 32px; max-width: 1200px; margin: 0 auto;">
+          
+          <!-- Left Column: Selected Vehicle Profile -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px;">
+            <h3 style="margin-bottom: 16px;">Selected Vehicle</h3>
+            <div id="selectedVehicleCard">
+              <!-- Dynamically populated -->
+              <p style="color: var(--text-muted);">Loading vehicle profile...</p>
+            </div>
+
+            <!-- Price Breakdown Summary -->
+            <div class="price-breakdown-card">
+              <h4 style="font-size: 1rem; margin-bottom: 12px; color: var(--accent-gold);">Price Breakdown</h4>
+              <div class="price-item">
+                <span>Rental Duration</span>
+                <span id="summaryDays">3 Day(s)</span>
+              </div>
+              <div class="price-item">
+                <span>Vehicle Daily Rate</span>
+                <span id="summaryVehicleCost">₹66,000</span>
+              </div>
+              <div class="price-item">
+                <span>Chauffeur Service (₹1,500/day)</span>
+                <span id="summaryDriverFee">₹0</span>
+              </div>
+              <div class="price-item">
+                <span>Zero-Dep Insurance (₹1,000/day)</span>
+                <span id="summaryInsuranceFee">₹3,000</span>
+              </div>
+              <div class="price-item">
+                <span>Subtotal</span>
+                <span id="summarySubtotal">₹69,000</span>
+              </div>
+              <div class="price-item">
+                <span>Tax & Surcharges (10%)</span>
+                <span id="summaryTax">₹6,900</span>
+              </div>
+              <div class="price-item total">
+                <span>Estimated Total</span>
+                <span id="summaryGrandTotal">₹75,900</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Booking Reservation Form -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px;">
+            <h3 style="margin-bottom: 8px;">Reservation Details</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">Complete your booking preferences and travel itinerary.</p>
+
+            <form id="bookingWizardForm" onsubmit="submitWizardBooking(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Pickup Date</label>
+                  <input type="date" id="startDate" class="form-control" required onchange="triggerPriceRecalc()">
+                </div>
+                <div class="form-group">
+                  <label>Return Date</label>
+                  <input type="date" id="endDate" class="form-control" required onchange="triggerPriceRecalc()">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Pickup Location</label>
+                  <select id="pickupLocation" class="form-control">
+                    <option value="Mumbai - Bandra Kurla Complex (BKC)">Mumbai - Bandra Kurla Complex (BKC)</option>
+                    <option value="Delhi NCR - IGI Airport T3 VIP Lounge">Delhi NCR - IGI Airport T3 VIP Lounge</option>
+                    <option value="Bengaluru - UB City Hub">Bengaluru - UB City Hub</option>
+                    <option value="Hyderabad - HITEC City Concourse">Hyderabad - HITEC City Concourse</option>
+                    <option value="Goa - Coastal Suite">Goa - Coastal Suite</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Return Location</label>
+                  <select id="dropLocation" class="form-control">
+                    <option value="Mumbai - Bandra Kurla Complex (BKC)">Mumbai - Bandra Kurla Complex (BKC)</option>
+                    <option value="Delhi NCR - IGI Airport T3 VIP Lounge">Delhi NCR - IGI Airport T3 VIP Lounge</option>
+                    <option value="Bengaluru - UB City Hub">Bengaluru - UB City Hub</option>
+                    <option value="Hyderabad - HITEC City Concourse">Hyderabad - HITEC City Concourse</option>
+                    <option value="Goa - Coastal Suite">Goa - Coastal Suite</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Add-ons -->
+              <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; margin-bottom: 20px;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 12px; text-transform: uppercase;">
+                  Fleet Add-Ons & Services
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="driverRequired" onchange="triggerPriceRecalc()">
+                    <div>
+                      <strong>Request Professional Chauffeur</strong>
+                      <div style="font-size: 0.8rem; color: var(--text-muted);">+₹1,500 per day • Uniformed driver assigned to your trip</div>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="insuranceOpted" checked onchange="triggerPriceRecalc()">
+                    <div>
+                      <strong>Zero-Depreciation Insurance & Roadside Concierge</strong>
+                      <div style="font-size: 0.8rem; color: var(--text-muted);">+₹1,000 per day • 100% collision and total damage waiver</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Special Instructions / Flight Number</label>
+                <textarea id="bookingNotes" class="form-control" placeholder="Optional notes for our concierge team..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                Submit Booking Request &rarr;
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/bookings.js"></script>
+
+  <script>
+    let activeVehicle = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      auth.guard(['customer']);
+
+      // Default dates
+      const today = new Date().toISOString().split('T')[0];
+      const returnDay = new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0];
+      document.getElementById('startDate').value = today;
+      document.getElementById('endDate').value = returnDay;
+
+      // Extract vehicleId from query params
+      const params = new URLSearchParams(window.location.search);
+      const vehicleId = parseInt(params.get('vehicleId')) || 1;
+
+      try {
+        const res = await api.vehicles.getAll();
+        activeVehicle = res.vehicles.find(v => v.id === vehicleId) || res.vehicles[0];
+        renderSelectedVehicle(activeVehicle);
+        triggerPriceRecalc();
+      } catch (err) {
+        showToast('Error loading vehicle details', 'error');
+      }
+    });
+
+    function renderSelectedVehicle(v) {
+      const container = document.getElementById('selectedVehicleCard');
+      container.innerHTML = `
+        <div style="border-radius: var(--radius-md); overflow: hidden; margin-bottom: 16px;">
+          <img src="${v.image_url}" style="width: 100%; height: 200px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800'">
+        </div>
+        <span class="badge badge-yellow">${v.vehicle_type}</span>
+        <h3 style="margin: 8px 0 4px 0;">${v.brand} ${v.model}</h3>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">Plate: <strong>${v.vehicle_number}</strong></p>
+        <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-gold); margin-bottom: 12px;">${formatCurrency(v.rental_price)} <span style="font-size: 0.8rem; color: var(--text-muted);">/ day</span></div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 0.85rem; color: var(--text-secondary); background: rgba(0,0,0,0.2); padding: 12px; border-radius: var(--radius-sm);">
+          <div>• ${v.transmission}</div>
+          <div>• ${v.fuel_type}</div>
+          <div>• ${v.seating_capacity} Seats</div>
+          <div>• Insured & Ready</div>
+        </div>
+      `;
+    }
+
+    function triggerPriceRecalc() {
+      if (activeVehicle) {
+        calculateBookingPrice(activeVehicle.rental_price);
+      }
+    }
+
+    async function submitWizardBooking(e) {
+      if (activeVehicle) {
+        await handleBookingSubmit(e, activeVehicle);
+      }
+    }
+  </script>
+</body>
+</html>

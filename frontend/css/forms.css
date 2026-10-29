@@ -1,0 +1,125 @@
+/* ===================================================
+   FORMS & INPUT DESIGN SYSTEM
+   =================================================== */
+
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.form-control {
+  width: 100%;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px var(--accent-gold-glow);
+  background: #1e293b;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Custom Checkbox & Radio */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.checkbox-label input[type="checkbox"],
+.checkbox-label input[type="radio"] {
+  accent-color: var(--accent-gold);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* File Upload Drop Area */
+.file-dropzone {
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.file-dropzone:hover {
+  border-color: var(--accent-gold);
+  background: rgba(245, 158, 11, 0.04);
+}
+
+.file-dropzone .icon {
+  font-size: 2rem;
+  color: var(--accent-gold);
+  margin-bottom: 8px;
+}
+
+.file-dropzone p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Summary Box (Pricing Breakdown) */
+.price-breakdown-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.price-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.price-item.total {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  border-bottom: none;
+  padding-top: 14px;
+}

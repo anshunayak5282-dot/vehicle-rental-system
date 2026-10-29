@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage My Vehicles | Apex Fleet Owner</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Owner Hub</div>
+        <a href="dashboard.html" class="menu-item">
+          <span class="menu-icon">💼</span> Owner Dashboard
+        </a>
+        <a href="vehicles.html" class="menu-item active">
+          <span class="menu-icon">🚗</span> My Listed Vehicles
+        </a>
+        <a href="income.html" class="menu-item">
+          <span class="menu-icon">💰</span> Rental Income & Payouts
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" class="user-avatar" alt="Owner">
+          <div class="user-info-text">
+            <span class="user-info-name">Marcus Sterling</span>
+            <span class="user-info-role">Vehicle Owner</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>My Listed Fleet Assets</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('ownerAddModal')">+ List New Vehicle</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">My Registered Vehicles & Documents</div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Registration</th>
+                  <th>Class</th>
+                  <th>Daily Rate</th>
+                  <th>RC Document</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ownerFleetTable">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Vehicle Modal for Owner -->
+  <div id="ownerAddModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>List New Vehicle for Rental</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleOwnerAddVehicle(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Make / Brand</label>
+              <input type="text" id="oBrand" class="form-control" placeholder="Porsche, BMW..." required>
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <input type="text" id="oModel" class="form-control" placeholder="Taycan, X5..." required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Registration Number</label>
+              <input type="text" id="oPlate" class="form-control" placeholder="LUX-5510" required>
+            </div>
+            <div class="form-group">
+              <label>Vehicle Class</label>
+              <select id="oClass" class="form-control">
+                <option value="Luxury Sedan">Luxury Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Sports Car">Sports Car</option>
+                <option value="Electric">Electric</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Set Daily Rental Rate (₹)</label>
+            <input type="number" id="oPrice" class="form-control" placeholder="18000" required>
+          </div>
+
+          <div class="form-group">
+            <label>Upload RC & Commercial Permit</label>
+            <div class="file-dropzone" onclick="simulateRcUpload()">
+              <div class="icon">📄</div>
+              <p id="rcUploadLabel">Click to attach Vehicle RC certificate & insurance policy</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit for Security Clearance</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['owner']);
+      loadOwnerVehicles();
+    });
+
+    function simulateRcUpload() {
+      document.getElementById('rcUploadLabel').innerHTML = '<strong style="color: var(--status-available);">✓ RC_registration_certified.pdf Attached</strong>';
+      showToast('RC document attached for security clearance', 'info');
+    }
+
+    async function loadOwnerVehicles() {
+      const tbody = document.getElementById('ownerFleetTable');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px;">Loading fleet...</td></tr>`;
+
+      try {
+        const res = await api.vehicles.getAll();
+        const list = res.vehicles || [];
+
+        tbody.innerHTML = list.map(v => `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="${v.image_url}" style="width: 45px; height: 32px; border-radius: 4px; object-fit: cover;">
+                <strong>${v.brand} ${v.model}</strong>
+              </div>
+            </td>
+            <td><code>${v.vehicle_number}</code></td>
+            <td>${v.vehicle_type}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <strong>${formatCurrency(v.rental_price)}</strong>
+                <button class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="updatePricePrompt(${v.id}, ${v.rental_price})">Edit</button>
+              </div>
+            </td>
+            <td><span class="badge badge-green">✓ Verified</span></td>
+            <td><span class="badge ${v.status === 'Available' ? 'badge-green' : 'badge-yellow'}">${v.status}</span></td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="toggleAvailability(${v.id}, '${v.status}')">
+                ${v.status === 'Available' ? 'Mark Unavailable' : 'Mark Available'}
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: var(--status-danger); text-align: center;">Error loading vehicles.</td></tr>`;
+      }
+    }
+
+    async function updatePricePrompt(id, oldPrice) {
+      const newPrice = prompt('Enter new daily rental rate (₹):', oldPrice);
+      if (!newPrice || isNaN(newPrice)) return;
+      try {
+        await api.vehicles.update(id, { rental_price: parseFloat(newPrice) });
+        showToast('Daily rental price updated!', 'success');
+        loadOwnerVehicles();
+      } catch (err) {
+        showToast('Error updating price', 'error');
+      }
+    }
+
+    async function toggleAvailability(id, currentStatus) {
+      const newStatus = currentStatus === 'Available' ? 'Unavailable' : 'Available';
+      try {
+        await api.vehicles.update(id, { status: newStatus });
+        showToast(`Vehicle status changed to ${newStatus}`, 'success');
+        loadOwnerVehicles();
+      } catch (err) {
+        showToast('Error updating status', 'error');
+      }
+    }
+
+    async function handleOwnerAddVehicle(e) {
+      e.preventDefault();
+      const payload = {
+        brand: document.getElementById('oBrand').value.trim(),
+        model: document.getElementById('oModel').value.trim(),
+        vehicle_number: document.getElementById('oPlate').value.trim(),
+        vehicle_type: document.getElementById('oClass').value,
+        rental_price: parseFloat(document.getElementById('oPrice').value)
+      };
+
+      try {
+        await api.vehicles.create(payload);
+        closeModal('ownerAddModal');
+        showToast('Vehicle added and submitted for verification!', 'success');
+        loadOwnerVehicles();
+      } catch (err) {
+        showToast('Error listing vehicle', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

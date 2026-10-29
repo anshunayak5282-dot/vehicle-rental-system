@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Dashboard | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Main Menu</div>
+        <a href="dashboard.html" class="menu-item active">
+          <span class="menu-icon">🏠</span> Dashboard
+        </a>
+        <a href="vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> Explore Fleet
+        </a>
+        <a href="bookings.html" class="menu-item">
+          <span class="menu-icon">📑</span> My Bookings
+        </a>
+        <a href="profile.html" class="menu-item">
+          <span class="menu-icon">👤</span> My Profile & KYC
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" alt="Avatar">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">Customer</span>
+            <span class="user-info-role">Customer</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Customer Portal</h2>
+        </div>
+        <div class="topbar-actions">
+          <a href="vehicles.html" class="btn btn-primary btn-sm">+ Book New Vehicle</a>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <!-- Welcome Hero Banner -->
+        <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(17, 24, 39, 0.8)); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-lg); padding: 24px 32px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap;">
+          <div>
+            <h2 style="font-size: 1.8rem; margin-bottom: 6px;">Welcome back, <span class="js-user-name">Customer</span>!</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">Your identity and driving credentials are <strong style="color: var(--status-available);">100% Verified</strong> for instant rental checkout.</p>
+          </div>
+          <a href="vehicles.html" class="btn btn-primary">Browse Available Fleet &rarr;</a>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Active Trips</h3>
+              <div class="metric-val" id="metricActiveTrips">1</div>
+              <div class="metric-trend">On the road now</div>
+            </div>
+            <div class="metric-icon-wrap">🚗</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Upcoming Bookings</h3>
+              <div class="metric-val" id="metricUpcoming">1</div>
+              <div class="metric-trend" style="color: var(--accent-cyan);">Confirmed & ready</div>
+            </div>
+            <div class="metric-icon-wrap">📅</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Completed Rentals</h3>
+              <div class="metric-val" id="metricCompleted">1</div>
+              <div class="metric-trend">Lifetime history</div>
+            </div>
+            <div class="metric-icon-wrap">🏆</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Total Investment</h3>
+              <div class="metric-val" id="metricTotalSpent">₹2,16,150</div>
+              <div class="metric-trend">VIP Tier Member</div>
+            </div>
+            <div class="metric-icon-wrap">💳</div>
+          </div>
+        </div>
+
+        <!-- Active / Recent Bookings Table -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Recent & Active Reservations</div>
+            <a href="bookings.html" class="btn btn-secondary btn-sm">View Full History</a>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking Ref</th>
+                  <th>Vehicle</th>
+                  <th>Rental Dates</th>
+                  <th>Chauffeur</th>
+                  <th>Total Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="customerRecentTableBody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Secure Rental Checkout</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="processPayment(event)">
+        <div class="modal-body">
+          <input type="hidden" id="payBookingId">
+          <input type="hidden" id="payAmount">
+
+          <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+            <div style="color: var(--text-muted); font-size: 0.85rem;">CUSTOMER: <strong id="payCustomerName" style="color: var(--text-main);"></strong></div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent-gold); margin-top: 4px;" id="payDisplayAmount">₹0</div>
+          </div>
+
+          <div class="form-group">
+            <label>Select Payment Method</label>
+            <select id="payMethod" class="form-control">
+              <option value="Credit Card">Credit Card (Visa / Mastercard / Amex)</option>
+              <option value="UPI / Online">UPI / Instant Digital Payment</option>
+              <option value="Net Banking">Corporate Net Banking</option>
+              <option value="Cash">Cash at Reception Desk</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cardholder Name / Account Reference</label>
+            <input type="text" class="form-control" placeholder="Sarah Jenkins" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Card Number (Simulated)</label>
+              <input type="text" class="form-control" placeholder="•••• •••• •••• 4242" value="4532 8901 2345 4242" required>
+            </div>
+            <div class="form-group">
+              <label>Expiry / CVV</label>
+              <input type="text" class="form-control" placeholder="12/28 • 888" value="08/29 • 731" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Pay & Confirm Reservation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Invoice View Modal -->
+  <div id="invoiceModal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3>Tax Invoice & Receipt</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="invoiceModalBody">
+        <!-- Rendered via payments.js -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary js-modal-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/bookings.js"></script>
+  <script src="../../js/payments.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      auth.guard(['customer']);
+      loadCustomerBookings();
+    });
+
+    async function loadCustomerBookings() {
+      const tbody = document.getElementById('customerRecentTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px;">Loading bookings...</td></tr>`;
+
+      try {
+        const res = await api.bookings.getAll();
+        const user = auth.getUser();
+        // filter for current customer if present
+        let list = res.bookings || [];
+        if (user && user.role === 'customer') {
+          list = list.filter(b => String(b.customer_id) === String(user.id) || (user.email && b.customer_email && b.customer_email.toLowerCase() === user.email.toLowerCase()));
+        }
+
+        // update metrics
+        const activeCount = list.filter(b => b.status === 'Active').length;
+        const upCount = list.filter(b => b.status === 'Confirmed' || b.status === 'Approved').length;
+        const compCount = list.filter(b => b.status === 'Completed').length;
+        const total = list.reduce((sum, b) => sum + (b.total_amount || 0), 0);
+
+        document.getElementById('metricActiveTrips').textContent = activeCount;
+        document.getElementById('metricUpcoming').textContent = upCount;
+        document.getElementById('metricCompleted').textContent = compCount;
+        document.getElementById('metricTotalSpent').textContent = formatCurrency(total);
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 32px; color: var(--text-muted);">No bookings yet. <a href="vehicles.html" style="color: var(--accent-gold);">Rent your first vehicle!</a></td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(b => {
+          const badgeClass =
+            b.status === 'Confirmed' ? 'badge-blue' :
+            b.status === 'Active' ? 'badge-green' :
+            b.status === 'Completed' ? 'badge-green' :
+            b.status === 'Approved' ? 'badge-purple' :
+            b.status === 'Cancelled' ? 'badge-red' : 'badge-yellow';
+
+          return `
+            <tr>
+              <td><strong>#${b.id}</strong><div style="font-size: 0.75rem; color: var(--text-muted);">${b.booking_code || ''}</div></td>
+              <td>
+                <div style="font-weight: 600;">${b.vehicle_name}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${b.vehicle_number || ''}</div>
+              </td>
+              <td>${b.start_date} <br><span style="font-size: 0.8rem; color: var(--text-muted);">to ${b.end_date} (${b.total_days} days)</span></td>
+              <td>${b.driver_required ? 'Chauffeur Assigned' : 'Self-Drive'}</td>
+              <td><strong style="color: var(--accent-gold);">${formatCurrency(b.total_amount)}</strong></td>
+              <td><span class="badge ${badgeClass}">${b.status}</span></td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-secondary btn-sm" onclick="showInvoice(${b.id})">Bill</button>
+                  ${(b.status === 'Approved' || b.status === 'Pending') && b.payment_status !== 'Paid' ? `
+                    <button class="btn btn-primary btn-sm" onclick="openPaymentModal(${b.id}, ${b.total_amount}, '${b.customer_name}')">Pay</button>
+                  ` : ''}
+                  ${b.status !== 'Completed' && b.status !== 'Cancelled' ? `
+                    <button class="btn btn-secondary btn-sm" onclick="cancelBooking(${b.id})" style="color: var(--status-danger);">Cancel</button>
+                  ` : ''}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: var(--status-danger); text-align: center;">Error loading bookings.</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>

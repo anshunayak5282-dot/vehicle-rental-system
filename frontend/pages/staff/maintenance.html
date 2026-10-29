@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mechanic & Maintenance Desk | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Technical Desk</div>
+        <a href="maintenance.html" class="menu-item active">
+          <span class="menu-icon">🔧</span> Vehicle Maintenance
+        </a>
+
+        <div class="menu-category">Other Staff Desks</div>
+        <a href="payments.html" class="menu-item">
+          <span class="menu-icon">💳</span> Accountant Desk
+        </a>
+        <a href="receptionist.html" class="menu-item">
+          <span class="menu-icon">🛎️</span> Reception Desk
+        </a>
+        <a href="insurance.html" class="menu-item">
+          <span class="menu-icon">🛡️</span> Insurance Desk
+        </a>
+        <a href="verification.html" class="menu-item">
+          <span class="menu-icon">🔍</span> Security & KYC
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150" class="user-avatar" alt="Mechanic">
+          <div class="user-info-text">
+            <span class="user-info-name">Viktor Ramos</span>
+            <span class="user-info-role">Lead Fleet Mechanic</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Vehicle Servicing, Diagnostics & Repair</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('addServiceModal')">+ Log Service Ticket</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>In Service Right Now</h3>
+              <div class="metric-val" id="mUnderCount">1</div>
+              <div class="metric-trend" style="color: var(--status-maintenance);">Range Rover V8</div>
+            </div>
+            <div class="metric-icon-wrap">🔧</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Maintenance Expense</h3>
+              <div class="metric-val" id="mTotalCost">₹82,500</div>
+              <div class="metric-trend">Lifetime repair logs</div>
+            </div>
+            <div class="metric-icon-wrap">💵</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Diagnostic Health</h3>
+              <div class="metric-val">98.2%</div>
+              <div class="metric-trend" style="color: var(--status-available);">Fleet road-certified</div>
+            </div>
+            <div class="metric-icon-wrap">⚡</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Completed Overhauls</h3>
+              <div class="metric-val" id="mCompletedCount">1</div>
+              <div class="metric-trend" style="color: var(--status-available);">Signed off</div>
+            </div>
+            <div class="metric-icon-wrap">✓</div>
+          </div>
+        </div>
+
+        <!-- Maintenance Service Tickets Table -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Diagnostic Tickets & Servicing Logs</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadMaintenanceData()">Refresh</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Ticket #</th>
+                  <th>Vehicle Details</th>
+                  <th>Service Type</th>
+                  <th>Diagnostic Description</th>
+                  <th>Repair Cost</th>
+                  <th>Next Service</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="maintenanceTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Maintenance Modal -->
+  <div id="addServiceModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Log Vehicle Maintenance / Repair</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleCreateMaintenance(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Select Fleet Vehicle</label>
+            <select id="mVehicleSelect" class="form-control" required>
+              <option value="6">Range Rover Autobiography V8 (ROV-118)</option>
+              <option value="1">Porsche Taycan 4S Electric (LUX-7701)</option>
+              <option value="2">Mercedes-Benz S-Class 580 (MERC-402)</option>
+              <option value="3">BMW X7 M50i Luxury (BMW-908)</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Service Category</label>
+              <input type="text" id="mType" class="form-control" placeholder="Brakes, Battery, Engine tune-up..." required>
+            </div>
+            <div class="form-group">
+              <label>Repair Cost (₹)</label>
+              <input type="number" id="mCost" class="form-control" placeholder="25000" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Service Date</label>
+              <input type="date" id="mDate" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Next Service Date</label>
+              <input type="date" id="mNextDate" class="form-control">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Mechanic Notes & Diagnostic Report</label>
+            <textarea id="mDesc" class="form-control" placeholder="Detailed technical description of repairs performed..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="mMarkUnder" checked>
+              <span>Mark vehicle as <strong>Under Maintenance</strong> (Temporarily unbookable)</span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Log Service Ticket</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['mechanic', 'admin', 'manager']);
+      document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
+      loadMaintenanceData();
+    });
+
+    async function loadMaintenanceData() {
+      const tbody = document.getElementById('maintenanceTableBody');
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px;">Loading maintenance data...</td></tr>`;
+
+      try {
+        const res = await api.maintenance.getAll();
+        const list = res.maintenance || [];
+
+        const totalCost = list.reduce((sum, item) => sum + (item.cost || 0), 0);
+        const inProgress = list.filter(m => m.status === 'In Progress').length;
+        const comp = list.filter(m => m.status === 'Completed').length;
+
+        document.getElementById('mTotalCost').textContent = formatCurrency(totalCost);
+        document.getElementById('mUnderCount').textContent = inProgress;
+        document.getElementById('mCompletedCount').textContent = comp;
+
+        tbody.innerHTML = list.map(m => `
+          <tr>
+            <td><strong>#${m.id}</strong></td>
+            <td>
+              <div style="font-weight: 600;">${m.vehicle_name}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${m.vehicle_number}</div>
+            </td>
+            <td><span class="badge badge-purple">${m.service_type}</span></td>
+            <td style="max-width: 280px; font-size: 0.85rem;">${m.description}</td>
+            <td><strong style="color: var(--accent-gold);">${formatCurrency(m.cost)}</strong></td>
+            <td style="font-size: 0.85rem; color: var(--text-muted);">${m.next_service_date || 'N/A'}</td>
+            <td>
+              <span class="badge ${m.status === 'Completed' ? 'badge-green' : 'badge-yellow'}">${m.status}</span>
+            </td>
+            <td>
+              ${m.status === 'In Progress' ? `
+                <button class="btn btn-primary btn-sm" onclick="completeRepair(${m.id})">Mark Available</button>
+              ` : `
+                <span style="color: var(--status-available); font-size: 0.85rem;">Road Ready</span>
+              `}
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="color: var(--status-danger); text-align: center;">Error loading data.</td></tr>`;
+      }
+    }
+
+    async function completeRepair(id) {
+      try {
+        await api.maintenance.update(id, { status: 'Completed', mark_available: true });
+        showToast('Vehicle repair complete and marked Available in fleet!', 'success');
+        loadMaintenanceData();
+      } catch (err) {
+        showToast('Error updating repair', 'error');
+      }
+    }
+
+    async function handleCreateMaintenance(e) {
+      e.preventDefault();
+      const payload = {
+        vehicle_id: document.getElementById('mVehicleSelect').value,
+        service_type: document.getElementById('mType').value.trim(),
+        cost: parseFloat(document.getElementById('mCost').value),
+        service_date: document.getElementById('mDate').value,
+        next_service_date: document.getElementById('mNextDate').value,
+        description: document.getElementById('mDesc').value.trim(),
+        mark_under_maintenance: document.getElementById('mMarkUnder').checked
+      };
+
+      try {
+        await api.maintenance.create(payload);
+        closeModal('addServiceModal');
+        showToast('Service ticket logged and vehicle marked Under Maintenance', 'success');
+        loadMaintenanceData();
+      } catch (err) {
+        showToast('Error creating service record', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

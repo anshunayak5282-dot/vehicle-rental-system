@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Bookings | Apex Fleet Admin</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Governance</div>
+        <a href="dashboard.html" class="menu-item">
+          <span class="menu-icon">👑</span> Overview
+        </a>
+        <a href="users.html" class="menu-item">
+          <span class="menu-icon">👥</span> User Accounts
+        </a>
+        <a href="vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> Fleet Management
+        </a>
+        <a href="bookings.html" class="menu-item active">
+          <span class="menu-icon">📑</span> All Bookings
+        </a>
+        <a href="reports.html" class="menu-item">
+          <span class="menu-icon">📊</span> Reports & Finance
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="user-avatar js-user-avatar" alt="Admin">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">Alexander Vance</span>
+            <span class="user-info-role js-user-role">System Admin</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Master Booking Ledger</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <!-- Filter Tabs -->
+        <div class="filter-bar" style="justify-content: flex-start;">
+          <button class="filter-btn active" onclick="filterLedger('all', this)">All Reservations</button>
+          <button class="filter-btn" onclick="filterLedger('Pending', this)">Pending Approval</button>
+          <button class="filter-btn" onclick="filterLedger('Confirmed', this)">Confirmed</button>
+          <button class="filter-btn" onclick="filterLedger('Active', this)">Active Trips</button>
+          <button class="filter-btn" onclick="filterLedger('Completed', this)">Completed</button>
+          <button class="filter-btn" onclick="filterLedger('Cancelled', this)">Cancelled</button>
+        </div>
+
+        <div class="data-table-container">
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Customer Info</th>
+                  <th>Vehicle</th>
+                  <th>Dates</th>
+                  <th>Chauffeur</th>
+                  <th>Billing</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="masterBookingsBody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Invoice View Modal -->
+  <div id="invoiceModal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3>Tax Invoice & Receipt</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="invoiceModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary js-modal-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign Driver Modal -->
+  <div id="assignDriverModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Dispatch Driver to Booking</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleDriverDispatch(event)">
+        <div class="modal-body">
+          <input type="hidden" id="dispatchBookingId">
+          <div class="form-group">
+            <label>Select Chauffeur</label>
+            <select id="driverSelect" class="form-control">
+              <option value="5">David Rodriguez (Rating: 4.95 ⭐ • 148 Trips)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Dispatch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/bookings.js"></script>
+  <script src="../../js/payments.js"></script>
+
+  <script>
+    let masterList = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['admin', 'manager']);
+      loadAllBookings();
+    });
+
+    async function loadAllBookings() {
+      const tbody = document.getElementById('masterBookingsBody');
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px;">Loading bookings...</td></tr>`;
+
+      try {
+        const res = await api.bookings.getAll();
+        masterList = res.bookings || [];
+        renderMasterRows(masterList);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="color: var(--status-danger); text-align: center;">Error loading bookings.</td></tr>`;
+      }
+    }
+
+    function renderMasterRows(list) {
+      const tbody = document.getElementById('masterBookingsBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">No records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(b => {
+        const badgeClass =
+          b.status === 'Confirmed' ? 'badge-blue' :
+          b.status === 'Active' ? 'badge-green' :
+          b.status === 'Completed' ? 'badge-green' :
+          b.status === 'Approved' ? 'badge-purple' :
+          b.status === 'Cancelled' ? 'badge-red' : 'badge-yellow';
+
+        return `
+          <tr>
+            <td><strong>#${b.id}</strong><div style="font-size: 0.75rem; color: var(--text-muted);">${b.booking_code || ''}</div></td>
+            <td>
+              <div style="font-weight: 600;">${b.customer_name}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${b.customer_phone || b.customer_email || ''}</div>
+            </td>
+            <td>
+              <div style="font-weight: 500;">${b.vehicle_name}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${b.vehicle_number || ''}</div>
+            </td>
+            <td>${b.start_date} &rarr; ${b.end_date}</td>
+            <td>
+              ${b.driver_required ? `
+                <div style="font-size: 0.85rem; color: var(--accent-cyan);">${b.driver_name || 'Driver Needed'}</div>
+                <button class="btn btn-outline btn-sm" style="padding: 2px 6px; font-size: 0.7rem; margin-top: 4px;" onclick="openDispatchModal(${b.id})">Assign</button>
+              ` : '<span style="color: var(--text-muted);">Self-Drive</span>'}
+            </td>
+            <td><strong style="color: var(--accent-gold);">${formatCurrency(b.total_amount)}</strong></td>
+            <td><span class="badge ${badgeClass}">${b.status}</span></td>
+            <td>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                ${b.status === 'Pending' ? `
+                  <button class="btn btn-primary btn-sm" onclick="approveBooking(${b.id})">Approve</button>
+                  <button class="btn btn-secondary btn-sm" onclick="rejectBooking(${b.id})" style="color: var(--status-danger);">Reject</button>
+                ` : ''}
+                <button class="btn btn-secondary btn-sm" onclick="showInvoice(${b.id})">Bill</button>
+                ${b.status !== 'Completed' && b.status !== 'Cancelled' ? `
+                  <button class="btn btn-secondary btn-sm" onclick="cancelBooking(${b.id})" style="color: var(--status-danger);">Cancel</button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterLedger(status, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (status === 'all') {
+        renderMasterRows(masterList);
+      } else {
+        renderMasterRows(masterList.filter(b => b.status.toLowerCase() === status.toLowerCase()));
+      }
+    }
+
+    function openDispatchModal(bookingId) {
+      document.getElementById('dispatchBookingId').value = bookingId;
+      openModal('assignDriverModal');
+    }
+
+    async function handleDriverDispatch(e) {
+      e.preventDefault();
+      const bId = document.getElementById('dispatchBookingId').value;
+      const driverId = document.getElementById('driverSelect').value;
+
+      try {
+        await api.bookings.update(bId, { driver_id: driverId, status: 'Confirmed' });
+        closeModal('assignDriverModal');
+        showToast('Driver David Rodriguez assigned to trip!', 'success');
+        loadAllBookings();
+      } catch (err) {
+        showToast('Error assigning driver', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

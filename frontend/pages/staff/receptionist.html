@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reception Desk | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Front Desk</div>
+        <a href="receptionist.html" class="menu-item active">
+          <span class="menu-icon">🛎️</span> Reception Desk
+        </a>
+
+        <div class="menu-category">Other Staff Desks</div>
+        <a href="maintenance.html" class="menu-item">
+          <span class="menu-icon">🔧</span> Maintenance Desk
+        </a>
+        <a href="payments.html" class="menu-item">
+          <span class="menu-icon">💳</span> Accountant Desk
+        </a>
+        <a href="insurance.html" class="menu-item">
+          <span class="menu-icon">🛡️</span> Insurance Desk
+        </a>
+        <a href="verification.html" class="menu-item">
+          <span class="menu-icon">🔍</span> Security & KYC
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150" class="user-avatar" alt="Receptionist">
+          <div class="user-info-text">
+            <span class="user-info-name">Mia Tanaka</span>
+            <span class="user-info-role">Front Desk Concierge</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Front Desk Handover & Customer Concierge</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('walkinModal')">+ Walk-in Booking</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Today's Handovers</h3>
+              <div class="metric-val">2</div>
+              <div class="metric-trend" style="color: var(--accent-cyan);">Scheduled keys handover</div>
+            </div>
+            <div class="metric-icon-wrap">🔑</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Pending Returns</h3>
+              <div class="metric-val">1</div>
+              <div class="metric-trend">Due by 6:00 PM</div>
+            </div>
+            <div class="metric-icon-wrap">🚗</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Walk-in Check-ins</h3>
+              <div class="metric-val">4</div>
+              <div class="metric-trend" style="color: var(--status-available);">Front desk counter</div>
+            </div>
+            <div class="metric-icon-wrap">🛎️</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Customer Satisfaction</h3>
+              <div class="metric-val">100%</div>
+              <div class="metric-trend">5-Star Concierge</div>
+            </div>
+            <div class="metric-icon-wrap">⭐</div>
+          </div>
+        </div>
+
+        <!-- Handover & Return Station -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Front Desk Handover & Return Queue</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadReceptionData()">Refresh</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking</th>
+                  <th>Customer</th>
+                  <th>Vehicle</th>
+                  <th>Dates</th>
+                  <th>Payment</th>
+                  <th>Trip Status</th>
+                  <th>Desk Action</th>
+                </tr>
+              </thead>
+              <tbody id="receptionTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Handover Modal -->
+  <div id="handoverModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Vehicle Key Handover Protocol</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleHandoverSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="hoBookingId">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Starting Odometer Reading (Miles)</label>
+              <input type="number" id="hoOdometer" class="form-control" value="8240" required>
+            </div>
+            <div class="form-group">
+              <label>Fuel / Battery Level</label>
+              <select id="hoFuel" class="form-control">
+                <option value="100%">100% (Full Tank / Full Charge)</option>
+                <option value="90%">90%</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Customer Physical Driving License Check</label>
+            <label class="checkbox-label">
+              <input type="checkbox" checked required>
+              <span>Physical driver's license checked against DMV record</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>Digital Signature Acceptance</label>
+            <div style="border: 1px dashed var(--border-color); padding: 16px; border-radius: var(--radius-sm); text-align: center; color: var(--status-available);">
+              ✓ Customer Signed Digitally on Concierge Tablet
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Hand Over Keys & Activate Rental</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Return Check-in Modal -->
+  <div id="returnModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Vehicle Return & Inspection Check-in</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleReturnSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="retBookingId">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Return Odometer (Miles)</label>
+              <input type="number" id="retOdometer" class="form-control" value="8480" required>
+            </div>
+            <div class="form-group">
+              <label>Return Fuel Level</label>
+              <select id="retFuel" class="form-control">
+                <option value="100%">100% Full</option>
+                <option value="90%">90% Full</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Exterior & Interior Condition</label>
+            <select id="retCondition" class="form-control">
+              <option value="Pristine">Pristine - No Scratches or Damage</option>
+              <option value="Minor Wear">Minor Wear (Normal Use)</option>
+              <option value="Damaged">Damage Detected (Alert Security Staff)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Complete Return & Print Receipt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/payments.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['receptionist', 'admin', 'manager']);
+      loadReceptionData();
+    });
+
+    async function loadReceptionData() {
+      const tbody = document.getElementById('receptionTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px;">Checking front desk schedule...</td></tr>`;
+
+      try {
+        const res = await api.bookings.getAll();
+        const list = res.bookings || [];
+
+        tbody.innerHTML = list.map(b => `
+          <tr>
+            <td><strong>#${b.id}</strong><div style="font-size: 0.75rem; color: var(--text-muted);">${b.booking_code || ''}</div></td>
+            <td>
+              <strong>${b.customer_name}</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${b.customer_phone || ''}</div>
+            </td>
+            <td>${b.vehicle_name}</td>
+            <td>${b.start_date} &rarr; ${b.end_date}</td>
+            <td><span class="badge ${b.payment_status === 'Paid' ? 'badge-green' : 'badge-yellow'}">${b.payment_status || 'Paid'}</span></td>
+            <td><span class="badge ${b.status === 'Active' ? 'badge-green' : 'badge-blue'}">${b.status}</span></td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                ${b.status === 'Confirmed' ? `
+                  <button class="btn btn-primary btn-sm" onclick="openHandoverModal(${b.id})">🔑 Handover Keys</button>
+                ` : b.status === 'Active' ? `
+                  <button class="btn btn-secondary btn-sm" onclick="openReturnModal(${b.id})" style="background: var(--status-available); color: #000; font-weight: 700;">📥 Check In Return</button>
+                ` : `
+                  <button class="btn btn-secondary btn-sm" onclick="showInvoice(${b.id})">Receipt</button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: var(--status-danger); text-align: center;">Error loading data.</td></tr>`;
+      }
+    }
+
+    function openHandoverModal(id) {
+      document.getElementById('hoBookingId').value = id;
+      openModal('handoverModal');
+    }
+
+    function openReturnModal(id) {
+      document.getElementById('retBookingId').value = id;
+      openModal('returnModal');
+    }
+
+    async function handleHandoverSubmit(e) {
+      e.preventDefault();
+      const bId = document.getElementById('hoBookingId').value;
+      try {
+        await api.bookings.update(bId, { status: 'Active' });
+        closeModal('handoverModal');
+        showToast('Keys handed over! Trip is now Active on road.', 'success');
+        loadReceptionData();
+      } catch (err) {
+        showToast('Error during handover', 'error');
+      }
+    }
+
+    async function handleReturnSubmit(e) {
+      e.preventDefault();
+      const bId = document.getElementById('retBookingId').value;
+      try {
+        await api.bookings.update(bId, { status: 'Completed' });
+        closeModal('returnModal');
+        showToast('Vehicle return checked in! Trip Completed.', 'success');
+        loadReceptionData();
+      } catch (err) {
+        showToast('Error during return', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

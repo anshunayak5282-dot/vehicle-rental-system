@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Owner Portal | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Owner Hub</div>
+        <a href="dashboard.html" class="menu-item active">
+          <span class="menu-icon">💼</span> Owner Dashboard
+        </a>
+        <a href="vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> My Listed Vehicles
+        </a>
+        <a href="income.html" class="menu-item">
+          <span class="menu-icon">💰</span> Rental Income & Payouts
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" class="user-avatar" alt="Owner">
+          <div class="user-info-text">
+            <span class="user-info-name">Marcus Sterling</span>
+            <span class="user-info-role">Vehicle Owner</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Fleet Partner Portal</h2>
+        </div>
+        <div class="topbar-actions">
+          <a href="vehicles.html" class="btn btn-primary btn-sm">+ Add New Vehicle</a>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Total Rental Earnings</h3>
+              <div class="metric-val" id="ownerEarnings">₹11,50,000</div>
+              <div class="metric-trend" style="color: var(--status-available);">Payout: Bank Verified</div>
+            </div>
+            <div class="metric-icon-wrap">💵</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Vehicles Listed</h3>
+              <div class="metric-val" id="ownerVehicleCount">8</div>
+              <div class="metric-trend">High-yield luxury fleet</div>
+            </div>
+            <div class="metric-icon-wrap">🚗</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Active On-Trip</h3>
+              <div class="metric-val">2</div>
+              <div class="metric-trend" style="color: var(--accent-cyan);">Generating daily returns</div>
+            </div>
+            <div class="metric-icon-wrap">⚡</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Partner Rating</h3>
+              <div class="metric-val">4.92 ⭐</div>
+              <div class="metric-trend">Super Partner Tier</div>
+            </div>
+            <div class="metric-icon-wrap">🌟</div>
+          </div>
+        </div>
+
+        <!-- My Vehicles Performance Table -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">My Fleet Assets & Current Status</div>
+            <a href="vehicles.html" class="btn btn-secondary btn-sm">Manage Listed Vehicles</a>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Plate Number</th>
+                  <th>Category</th>
+                  <th>Rental Rate</th>
+                  <th>Live Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ownerVehiclesTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['owner']);
+      loadOwnerData();
+    });
+
+    async function loadOwnerData() {
+      const tbody = document.getElementById('ownerVehiclesTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px;">Loading fleet...</td></tr>`;
+
+      try {
+        const res = await api.vehicles.getAll();
+        const list = res.vehicles || [];
+        document.getElementById('ownerVehicleCount').textContent = list.length;
+
+        const user = auth.getUser();
+        if (user && user.total_earnings) {
+          const el = document.getElementById('ownerEarnings');
+          if (el) el.textContent = formatCurrency(user.total_earnings);
+        }
+
+        tbody.innerHTML = list.map(v => {
+          const badgeClass =
+            v.status === 'Available' ? 'badge-green' :
+            v.status === 'Booked' ? 'badge-purple' :
+            v.status === 'Rented' ? 'badge-blue' : 'badge-yellow';
+
+          return `
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <img src="${v.image_url}" style="width: 50px; height: 35px; border-radius: 4px; object-fit: cover;">
+                  <strong>${v.brand} ${v.model}</strong>
+                </div>
+              </td>
+              <td><code>${v.vehicle_number}</code></td>
+              <td>${v.vehicle_type}</td>
+              <td><strong style="color: var(--accent-gold);">${formatCurrency(v.rental_price)} / day</strong></td>
+              <td><span class="badge ${badgeClass}">${v.status}</span></td>
+              <td>
+                <a href="vehicles.html" class="btn btn-secondary btn-sm">Edit Rate / Docs</a>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color: var(--status-danger); text-align: center;">Error loading vehicles.</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>

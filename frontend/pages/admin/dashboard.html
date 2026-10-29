@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Executive Dashboard | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Admin Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Governance</div>
+        <a href="dashboard.html" class="menu-item active">
+          <span class="menu-icon">👑</span> Overview
+        </a>
+        <a href="users.html" class="menu-item">
+          <span class="menu-icon">👥</span> User Accounts
+        </a>
+        <a href="vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> Fleet Management
+        </a>
+        <a href="bookings.html" class="menu-item">
+          <span class="menu-icon">📑</span> All Bookings
+        </a>
+        <a href="reports.html" class="menu-item">
+          <span class="menu-icon">📊</span> Reports & Finance
+        </a>
+
+        <div class="menu-category">Operations</div>
+        <a href="../staff/maintenance.html" class="menu-item">
+          <span class="menu-icon">🔧</span> Maintenance Desk
+        </a>
+        <a href="../staff/payments.html" class="menu-item">
+          <span class="menu-icon">💳</span> Payments & Ledger
+        </a>
+        <a href="../staff/verification.html" class="menu-item">
+          <span class="menu-icon">🔍</span> Verification & KYC
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="user-avatar js-user-avatar" alt="Admin">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">Alexander Vance</span>
+            <span class="user-info-role js-user-role">System Admin</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Executive Command Center</h2>
+        </div>
+        <div class="topbar-actions">
+          <a href="vehicles.html" class="btn btn-primary btn-sm">+ Add Fleet Vehicle</a>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Gross Platform Revenue</h3>
+              <div class="metric-val" id="adminRevenue">₹2,16,150</div>
+              <div class="metric-trend">↑ 18.4% this month</div>
+            </div>
+            <div class="metric-icon-wrap">💰</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Active Fleet Inventory</h3>
+              <div class="metric-val" id="adminFleetCount">8</div>
+              <div class="metric-trend" style="color: var(--status-available);">5 Available Now</div>
+            </div>
+            <div class="metric-icon-wrap">🚗</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Total Bookings</h3>
+              <div class="metric-val" id="adminBookingCount">3</div>
+              <div class="metric-trend" style="color: var(--accent-cyan);">1 Pending Verification</div>
+            </div>
+            <div class="metric-icon-wrap">📑</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Registered Users</h3>
+              <div class="metric-val" id="adminUserCount">4</div>
+              <div class="metric-trend">Across 4 core roles</div>
+            </div>
+            <div class="metric-icon-wrap">👥</div>
+          </div>
+        </div>
+
+        <!-- Quick Access Portals Banner -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h4 style="font-size: 1.1rem; margin-bottom: 4px;">Role Portal Jumpboard</h4>
+            <p style="color: var(--text-secondary); font-size: 0.85rem;">As System Administrator, you have full access to inspect all core portals directly.</p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="auth.switchDemoRole('customer')">🚗 Customer Portal</button>
+            <button class="btn btn-secondary btn-sm" onclick="auth.switchDemoRole('manager')">📋 Rental Manager Desk</button>
+            <button class="btn btn-secondary btn-sm" onclick="auth.switchDemoRole('driver')">🧭 Chauffeur Dashboard</button>
+          </div>
+        </div>
+
+        <!-- Recent System Bookings Table -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Recent System Bookings & Action Required</div>
+            <a href="bookings.html" class="btn btn-secondary btn-sm">Manage All Bookings</a>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Ref</th>
+                  <th>Customer</th>
+                  <th>Vehicle</th>
+                  <th>Schedule</th>
+                  <th>Chauffeur</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Governance</th>
+                </tr>
+              </thead>
+              <tbody id="adminBookingsTableBody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Invoice View Modal -->
+  <div id="invoiceModal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3>Tax Invoice & Receipt</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="invoiceModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary js-modal-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/bookings.js"></script>
+  <script src="../../js/payments.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['admin']);
+      loadAdminDashboardData();
+    });
+
+    async function loadAdminDashboardData() {
+      try {
+        const [bookingsRes, vehiclesRes, usersRes, paymentsRes] = await Promise.all([
+          api.bookings.getAll(),
+          api.vehicles.getAll(),
+          api.users.getAll(),
+          api.payments.getAll()
+        ]);
+
+        const bookings = bookingsRes.bookings || [];
+        const vehicles = vehiclesRes.vehicles || [];
+        const users = usersRes.users || [];
+        const payments = paymentsRes.payments || [];
+
+        document.getElementById('adminFleetCount').textContent = vehicles.length;
+        document.getElementById('adminBookingCount').textContent = bookings.length;
+        document.getElementById('adminUserCount').textContent = users.length;
+        
+        const rev = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        document.getElementById('adminRevenue').textContent = formatCurrency(rev);
+
+        renderAdminBookings(bookings);
+      } catch (err) {
+        showToast('Error syncing administrative data', 'error');
+      }
+    }
+
+    function renderAdminBookings(list) {
+      const tbody = document.getElementById('adminBookingsTableBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;">No bookings found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(b => {
+        const badgeClass =
+          b.status === 'Confirmed' ? 'badge-blue' :
+          b.status === 'Active' ? 'badge-green' :
+          b.status === 'Completed' ? 'badge-green' :
+          b.status === 'Approved' ? 'badge-purple' :
+          b.status === 'Cancelled' ? 'badge-red' : 'badge-yellow';
+
+        return `
+          <tr>
+            <td><strong>#${b.id}</strong></td>
+            <td><strong>${b.customer_name}</strong></td>
+            <td>${b.vehicle_name}</td>
+            <td>${b.start_date} &rarr; ${b.end_date}</td>
+            <td>${b.driver_required ? (b.driver_name || 'Driver Assigned') : 'Self-Drive'}</td>
+            <td><strong style="color: var(--accent-gold);">${formatCurrency(b.total_amount)}</strong></td>
+            <td><span class="badge ${badgeClass}">${b.status}</span></td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                ${b.status === 'Pending' ? `
+                  <button class="btn btn-primary btn-sm" onclick="approveBooking(${b.id})">Approve</button>
+                  <button class="btn btn-secondary btn-sm" onclick="rejectBooking(${b.id})" style="color: var(--status-danger);">Reject</button>
+                ` : `
+                  <button class="btn btn-secondary btn-sm" onclick="showInvoice(${b.id})">Invoice</button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

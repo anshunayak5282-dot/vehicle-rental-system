@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fleet Catalog | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Main Menu</div>
+        <a href="dashboard.html" class="menu-item">
+          <span class="menu-icon">🏠</span> Dashboard
+        </a>
+        <a href="vehicles.html" class="menu-item active">
+          <span class="menu-icon">🚗</span> Explore Fleet
+        </a>
+        <a href="bookings.html" class="menu-item">
+          <span class="menu-icon">📑</span> My Bookings
+        </a>
+        <a href="profile.html" class="menu-item">
+          <span class="menu-icon">👤</span> My Profile & KYC
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" alt="Avatar">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">Sarah Jenkins</span>
+            <span class="user-info-role">Customer</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Luxury Fleet Catalog</h2>
+        </div>
+        <div class="topbar-actions">
+          <a href="bookings.html" class="btn btn-secondary btn-sm">My Bookings</a>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <!-- Filter and Search Bar -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 30px;">
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 16px; align-items: center;">
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Search Vehicles</label>
+              <input type="text" id="catalogSearch" class="form-control" placeholder="Search by Porsche, Mercedes, SUV..." oninput="handleCatalogFilter()">
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Vehicle Category</label>
+              <select id="catalogCategory" class="form-control" onchange="handleCatalogFilter()">
+                <option value="all">All Categories</option>
+                <option value="Electric">Electric</option>
+                <option value="Luxury Sedan">Luxury Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Sports Car">Sports Car</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Availability Status</label>
+              <select id="catalogStatus" class="form-control" onchange="handleCatalogFilter()">
+                <option value="all">All Statuses</option>
+                <option value="Available" selected>Available Only</option>
+                <option value="Booked">Booked</option>
+                <option value="Rented">Rented</option>
+                <option value="Under Maintenance">Under Maintenance</option>
+              </select>
+            </div>
+            <div style="padding-top: 18px;">
+              <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicles Grid Container -->
+        <div id="customerVehiclesGrid" class="vehicles-grid">
+          <!-- Dynamically populated via vehicles.js -->
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Vehicle Details Modal -->
+  <div id="vehicleDetailModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Vehicle Specifications & Overview</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="vehicleDetailModalBody">
+        <!-- Injected via vehicles.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary js-modal-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/vehicles.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['customer']);
+      loadVehicles('customerVehiclesGrid', { status: 'Available' });
+    });
+
+    function handleCatalogFilter() {
+      const search = document.getElementById('catalogSearch').value;
+      const type = document.getElementById('catalogCategory').value;
+      const status = document.getElementById('catalogStatus').value;
+
+      loadVehicles('customerVehiclesGrid', { search, type, status });
+    }
+
+    function resetFilters() {
+      document.getElementById('catalogSearch').value = '';
+      document.getElementById('catalogCategory').value = 'all';
+      document.getElementById('catalogStatus').value = 'all';
+      loadVehicles('customerVehiclesGrid');
+    }
+  </script>
+</body>
+</html>

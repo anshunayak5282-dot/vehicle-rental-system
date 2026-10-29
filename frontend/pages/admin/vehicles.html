@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fleet Governance | Apex Fleet Admin</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Governance</div>
+        <a href="dashboard.html" class="menu-item">
+          <span class="menu-icon">👑</span> Overview
+        </a>
+        <a href="users.html" class="menu-item">
+          <span class="menu-icon">👥</span> User Accounts
+        </a>
+        <a href="vehicles.html" class="menu-item active">
+          <span class="menu-icon">🚗</span> Fleet Management
+        </a>
+        <a href="bookings.html" class="menu-item">
+          <span class="menu-icon">📑</span> All Bookings
+        </a>
+        <a href="reports.html" class="menu-item">
+          <span class="menu-icon">📊</span> Reports & Finance
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="user-avatar js-user-avatar" alt="Admin">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">Alexander Vance</span>
+            <span class="user-info-role js-user-role">System Admin</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Fleet Inventory & Availability</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('addVehicleModal')">+ Add New Vehicle</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">All Fleet Vehicles</div>
+            <div class="table-controls">
+              <input type="text" id="vSearch" class="form-control" style="width: 240px; padding: 6px 12px;" placeholder="Filter vehicles..." oninput="filterFleetTable()">
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Category</th>
+                  <th>Plate Number</th>
+                  <th>Daily Rate</th>
+                  <th>Hub Location</th>
+                  <th>Availability Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="fleetTableBody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Vehicle Modal -->
+  <div id="addVehicleModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Add Fleet Vehicle</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleCreateVehicle(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Make / Brand</label>
+              <input type="text" id="addBrand" class="form-control" placeholder="Porsche, BMW..." required>
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <input type="text" id="addModel" class="form-control" placeholder="911 Carrera, X7..." required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Registration Number (Plate)</label>
+              <input type="text" id="addPlate" class="form-control" placeholder="MH 02 CZ 7701" required>
+            </div>
+            <div class="form-group">
+              <label>Vehicle Class</label>
+              <select id="addClass" class="form-control">
+                <option value="Luxury Sedan">Luxury Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Sports Car">Sports Car</option>
+                <option value="Electric">Electric</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Daily Rental Rate (₹)</label>
+              <input type="number" id="addPrice" class="form-control" placeholder="15000" required>
+            </div>
+            <div class="form-group">
+              <label>Seating Capacity</label>
+              <input type="number" id="addSeats" class="form-control" value="5" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Transmission</label>
+              <select id="addTrans" class="form-control">
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Fuel Type</label>
+              <select id="addFuel" class="form-control">
+                <option value="Petrol">Petrol</option>
+                <option value="Electric">Electric</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Diesel">Diesel</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fleet Hub Location</label>
+              <select id="addLocation" class="form-control">
+                <option value="Mumbai - BKC Hub">Mumbai - BKC Hub</option>
+                <option value="Delhi NCR - IGI Airport T3">Delhi NCR - IGI Airport T3</option>
+                <option value="Bengaluru - UB City Hub">Bengaluru - UB City Hub</option>
+                <option value="Hyderabad - HITEC City">Hyderabad - HITEC City</option>
+                <option value="Goa - Coastal Suite">Goa - Coastal Suite</option>
+                <option value="Chennai - Guindy Hub">Chennai - Guindy Hub</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Current Mileage / Odometer (km)</label>
+              <input type="number" id="addMileage" class="form-control" placeholder="1200" value="1200">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Photo URL</label>
+            <input type="url" id="addImage" class="form-control" placeholder="https://images.unsplash.com/..." value="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save to Fleet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    let fleetVehicles = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['admin', 'manager']);
+      loadFleetTable();
+    });
+
+    async function loadFleetTable() {
+      const tbody = document.getElementById('fleetTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px;">Loading fleet inventory...</td></tr>`;
+
+      try {
+        const res = await api.vehicles.getAll();
+        fleetVehicles = res.vehicles || [];
+        renderFleetRows(fleetVehicles);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: var(--status-danger); text-align: center;">Error loading fleet.</td></tr>`;
+      }
+    }
+
+    function renderFleetRows(list) {
+      const tbody = document.getElementById('fleetTableBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">No vehicles found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(v => {
+        const badgeClass =
+          v.status === 'Available' ? 'badge-green' :
+          v.status === 'Booked' ? 'badge-purple' :
+          v.status === 'Rented' ? 'badge-blue' : 'badge-yellow';
+
+        return `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="${v.image_url}" style="width: 50px; height: 35px; border-radius: 4px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800'">
+                <div>
+                  <strong>${v.brand} ${v.model}</strong>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${v.transmission} • ${v.fuel_type}</div>
+                </div>
+              </div>
+            </td>
+            <td>${v.vehicle_type}</td>
+            <td><code>${v.vehicle_number}</code></td>
+            <td><strong style="color: var(--accent-gold);">${formatCurrency(v.rental_price)} / day</strong></td>
+            <td>${v.location || 'Mumbai - BKC Hub'}</td>
+            <td>
+              <select onchange="changeVehicleStatus(${v.id}, this.value)" class="form-control" style="padding: 4px 8px; font-size: 0.8rem; width: auto;">
+                <option value="Available" ${v.status === 'Available' ? 'selected' : ''}>Available</option>
+                <option value="Booked" ${v.status === 'Booked' ? 'selected' : ''}>Booked</option>
+                <option value="Rented" ${v.status === 'Rented' ? 'selected' : ''}>Rented</option>
+                <option value="Under Maintenance" ${v.status === 'Under Maintenance' ? 'selected' : ''}>Under Maintenance</option>
+                <option value="Unavailable" ${v.status === 'Unavailable' ? 'selected' : ''}>Unavailable</option>
+              </select>
+            </td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="deleteVehicleRecord(${v.id})" style="color: var(--status-danger);">Remove</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterFleetTable() {
+      const q = document.getElementById('vSearch').value.toLowerCase();
+      renderFleetRows(fleetVehicles.filter(v =>
+        v.brand.toLowerCase().includes(q) ||
+        v.model.toLowerCase().includes(q) ||
+        v.vehicle_number.toLowerCase().includes(q)
+      ));
+    }
+
+    async function changeVehicleStatus(id, newStatus) {
+      try {
+        await api.vehicles.update(id, { status: newStatus });
+        showToast(`Vehicle #${id} marked as ${newStatus}`, 'success');
+      } catch (err) {
+        showToast('Error updating vehicle status', 'error');
+      }
+    }
+
+    async function handleCreateVehicle(e) {
+      e.preventDefault();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : 'Save to Fleet';
+
+      const brand = document.getElementById('addBrand').value.trim();
+      const model = document.getElementById('addModel').value.trim();
+      const plate = document.getElementById('addPlate').value.trim().toUpperCase();
+      const price = parseFloat(document.getElementById('addPrice').value);
+      const seats = parseInt(document.getElementById('addSeats').value) || 5;
+      const vehicleType = document.getElementById('addClass').value;
+      const trans = document.getElementById('addTrans').value;
+      const fuel = document.getElementById('addFuel').value;
+      const location = document.getElementById('addLocation') ? document.getElementById('addLocation').value : 'Mumbai - BKC Hub';
+      const mileage = document.getElementById('addMileage') ? parseInt(document.getElementById('addMileage').value) : 1000;
+      const image = document.getElementById('addImage').value.trim();
+
+      if (!brand || !model || !plate || isNaN(price) || price <= 0) {
+        showToast('Please fill all required fields with a valid price.', 'error');
+        return;
+      }
+
+      const payload = {
+        brand,
+        model,
+        vehicle_number: plate,
+        vehicle_type: vehicleType,
+        rental_price: price,
+        seating_capacity: seats,
+        transmission: trans,
+        fuel_type: fuel,
+        location,
+        mileage: mileage || 0,
+        image_url: image || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800'
+      };
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving to Fleet...';
+      }
+
+      try {
+        const res = await api.vehicles.create(payload);
+        if (res && res.success !== false) {
+          closeModal('addVehicleModal');
+          e.target.reset();
+          showToast(res.message || `Vehicle "${brand} ${model}" (${plate}) successfully added!`, 'success');
+          await loadFleetTable();
+        } else {
+          showToast(res.message || 'Failed to add vehicle to fleet.', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'Error registering vehicle.', 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origText;
+        }
+      }
+    }
+
+    async function deleteVehicleRecord(id) {
+      if (!confirm('Remove this vehicle from active fleet?')) return;
+      try {
+        await api.vehicles.delete(id);
+        showToast('Vehicle removed from fleet', 'info');
+        loadFleetTable();
+      } catch (err) {
+        showToast('Error deleting vehicle', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver & Chauffeur Portal | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Driver Desk</div>
+        <a href="dashboard.html" class="menu-item active">
+          <span class="menu-icon">🧭</span> Assigned Trips
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150" class="user-avatar js-user-avatar" alt="Driver">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">David Rodriguez</span>
+            <span class="user-info-role js-user-role">Executive Chauffeur</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Chauffeur Trip Command</h2>
+        </div>
+        <div class="topbar-actions">
+          <span class="badge badge-green">Duty Status: Available</span>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Driver Rating</h3>
+              <div class="metric-val">4.95 ⭐</div>
+              <div class="metric-trend" style="color: var(--status-available);">Top Tier Concierge</div>
+            </div>
+            <div class="metric-icon-wrap">🌟</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Completed Trips</h3>
+              <div class="metric-val">148</div>
+              <div class="metric-trend">Zero infractions</div>
+            </div>
+            <div class="metric-icon-wrap">🏆</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Commercial License</h3>
+              <div class="metric-val" style="font-size: 1.4rem;">DL-MH-COMM</div>
+              <div class="metric-trend" style="color: var(--accent-cyan);">Expires 2029</div>
+            </div>
+            <div class="metric-icon-wrap">🪪</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Next Scheduled Pickup</h3>
+              <div class="metric-val" style="font-size: 1.3rem;">IGI Airport T3 VIP</div>
+              <div class="metric-trend">Audi RS e-tron GT</div>
+            </div>
+            <div class="metric-icon-wrap">🛫</div>
+          </div>
+        </div>
+
+        <!-- Assigned Trips Table -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">My Assigned Trips & Customer Pickups</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadDriverTrips()">Refresh</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking</th>
+                  <th>Customer Contact</th>
+                  <th>Assigned Vehicle</th>
+                  <th>Route / Itinerary</th>
+                  <th>Dates</th>
+                  <th>Status</th>
+                  <th>Trip Execution</th>
+                </tr>
+              </thead>
+              <tbody id="driverTripsTable">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['driver', 'admin']);
+      loadDriverTrips();
+    });
+
+    async function loadDriverTrips() {
+      const tbody = document.getElementById('driverTripsTable');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px;">Loading trips...</td></tr>`;
+
+      try {
+        const res = await api.bookings.getAll();
+        const list = (res.bookings || []).filter(b => b.driver_required || b.driver_id === 5);
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">No assigned trips at this time.</td></tr>`;
+          return;
+        }
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">No assigned trips currently in queue. Chauffeur is on standby.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(b => `
+          <tr>
+            <td><strong>#${b.id}</strong><div style="font-size: 0.75rem; color: var(--text-muted);">${b.booking_code || ''}</div></td>
+            <td>
+              <div style="font-weight: 600;">${b.customer_name}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">${b.customer_phone || 'N/A'}</div>
+              ${b.customer_phone ? `<a href="tel:${b.customer_phone}" class="btn btn-outline btn-sm" style="padding: 2px 6px; font-size: 0.7rem; margin-top: 4px;">📞 Call Passenger</a>` : ''}
+            </td>
+            <td>
+              <div><strong>${b.vehicle_name}</strong></div>
+              <div style="font-size: 0.8rem; color: var(--accent-gold);">${b.vehicle_number}</div>
+            </td>
+            <td>
+              <div><strong>From:</strong> ${b.pickup_location || 'Delhi NCR - IGI Airport T3'}</div>
+              <div><strong>To:</strong> ${b.drop_location || 'Mumbai - BKC Hub'}</div>
+            </td>
+            <td>${b.start_date} &rarr; ${b.end_date}</td>
+            <td><span class="badge ${b.status === 'Active' ? 'badge-green' : 'badge-blue'}">${b.status}</span></td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                ${b.status !== 'Active' && b.status !== 'Completed' ? `
+                  <button class="btn btn-primary btn-sm" onclick="startTrip(${b.id})">▶ Start Trip</button>
+                ` : b.status === 'Active' ? `
+                  <button class="btn btn-secondary btn-sm" onclick="finishTrip(${b.id})" style="background: var(--status-available); color: #000; font-weight: 700;">✓ Drop & Complete</button>
+                ` : `
+                  <span style="color: var(--status-available); font-size: 0.85rem;">Trip Completed</span>
+                `}
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: var(--status-danger); text-align: center;">Error loading trips.</td></tr>`;
+      }
+    }
+
+    async function startTrip(id) {
+      try {
+        await api.bookings.update(id, { status: 'Active' });
+        showToast(`Trip #${id} has been started. Safe journey!`, 'success');
+        loadDriverTrips();
+      } catch (err) {
+        showToast('Error starting trip', 'error');
+      }
+    }
+
+    async function finishTrip(id) {
+      try {
+        await api.bookings.update(id, { status: 'Completed' });
+        showToast(`Trip #${id} has been marked Completed! Odometer logged.`, 'success');
+        loadDriverTrips();
+      } catch (err) {
+        showToast('Error finishing trip', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rental Manager Portal | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Operations</div>
+        <a href="dashboard.html" class="menu-item active">
+          <span class="menu-icon">📋</span> Dispatch Board
+        </a>
+        <a href="operations.html" class="menu-item">
+          <span class="menu-icon">🗓️</span> Schedule & Handover
+        </a>
+
+        <div class="menu-category">Fleet & Governance</div>
+        <a href="../admin/vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> Fleet Inventory
+        </a>
+        <a href="../admin/bookings.html" class="menu-item">
+          <span class="menu-icon">📑</span> Master Bookings
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150" class="user-avatar js-user-avatar" alt="Manager">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">Eleanor Cross</span>
+            <span class="user-info-role js-user-role">Rental Manager</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Rental Operations & Dispatch Command</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Pending Approvals</h3>
+              <div class="metric-val" id="managerPendingCount">1</div>
+              <div class="metric-trend" style="color: var(--status-maintenance);">Awaiting dispatch sign-off</div>
+            </div>
+            <div class="metric-icon-wrap">⏳</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Active On-Trip</h3>
+              <div class="metric-val" id="managerActiveCount">1</div>
+              <div class="metric-trend" style="color: var(--status-available);">Vehicles deployed</div>
+            </div>
+            <div class="metric-icon-wrap">🚗</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Available Drivers</h3>
+              <div class="metric-val">1</div>
+              <div class="metric-trend" style="color: var(--accent-cyan);">David Rodriguez ready</div>
+            </div>
+            <div class="metric-icon-wrap">🧭</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Customer Complaints</h3>
+              <div class="metric-val">0</div>
+              <div class="metric-trend" style="color: var(--status-available);">100% Resolved</div>
+            </div>
+            <div class="metric-icon-wrap">✨</div>
+          </div>
+        </div>
+
+        <!-- Pending Approval & Dispatch Queue -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Booking Dispatch & Approval Queue</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadManagerData()">Refresh</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Customer</th>
+                  <th>Vehicle Requested</th>
+                  <th>Dates</th>
+                  <th>Chauffeur Status</th>
+                  <th>Status</th>
+                  <th>Manager Actions</th>
+                </tr>
+              </thead>
+              <tbody id="managerDispatchTable">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Assign Driver Modal -->
+  <div id="managerDriverModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Assign Chauffeur to Booking</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleManagerAssignDriver(event)">
+        <div class="modal-body">
+          <input type="hidden" id="mgrBookingId">
+          <div class="form-group">
+            <label>Available Drivers</label>
+            <select id="mgrDriverSelect" class="form-control">
+              <option value="5">David Rodriguez (4.95 ⭐ • 6 Yrs Exp • Available)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Chauffeur Assignment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/bookings.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['manager', 'admin']);
+      loadManagerData();
+    });
+
+    async function loadManagerData() {
+      const tbody = document.getElementById('managerDispatchTable');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px;">Loading dispatch queue...</td></tr>`;
+
+      try {
+        const res = await api.bookings.getAll();
+        const list = res.bookings || [];
+
+        const pending = list.filter(b => b.status === 'Pending').length;
+        const active = list.filter(b => b.status === 'Active').length;
+        document.getElementById('managerPendingCount').textContent = pending;
+        document.getElementById('managerActiveCount').textContent = active;
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">No rental dispatches currently queued.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(b => {
+          const badgeClass =
+            b.status === 'Confirmed' ? 'badge-blue' :
+            b.status === 'Active' ? 'badge-green' :
+            b.status === 'Completed' ? 'badge-green' :
+            b.status === 'Approved' ? 'badge-purple' :
+            b.status === 'Cancelled' ? 'badge-red' : 'badge-yellow';
+
+          return `
+            <tr>
+              <td><strong>#${b.id}</strong></td>
+              <td>
+                <div style="font-weight: 600;">${b.customer_name}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${b.customer_phone || ''}</div>
+              </td>
+              <td>${b.vehicle_name}</td>
+              <td>${b.start_date} &rarr; ${b.end_date}</td>
+              <td>
+                ${b.driver_required ? `
+                  <span style="color: var(--accent-cyan); font-weight: 600;">${b.driver_name || 'Driver Needed'}</span>
+                  ${!b.driver_id ? `
+                    <button class="btn btn-outline btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="openMgrDriverModal(${b.id})">Assign</button>
+                  ` : ''}
+                ` : '<span style="color: var(--text-muted);">Self-Drive</span>'}
+              </td>
+              <td><span class="badge ${badgeClass}">${b.status}</span></td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  ${b.status === 'Pending' ? `
+                    <button class="btn btn-primary btn-sm" onclick="approveBooking(${b.id})">Approve</button>
+                    <button class="btn btn-secondary btn-sm" onclick="rejectBooking(${b.id})" style="color: var(--status-danger);">Reject</button>
+                  ` : `
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">Processed</span>
+                  `}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: var(--status-danger); text-align: center;">Error loading queue.</td></tr>`;
+      }
+    }
+
+    function openMgrDriverModal(bookingId) {
+      document.getElementById('mgrBookingId').value = bookingId;
+      openModal('managerDriverModal');
+    }
+
+    async function handleManagerAssignDriver(e) {
+      e.preventDefault();
+      const bId = document.getElementById('mgrBookingId').value;
+      const driverId = document.getElementById('mgrDriverSelect').value;
+
+      try {
+        await api.bookings.update(bId, { driver_id: driverId, status: 'Confirmed' });
+        closeModal('managerDriverModal');
+        showToast('Chauffeur assigned successfully!', 'success');
+        loadManagerData();
+      } catch (err) {
+        showToast('Error assigning driver', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

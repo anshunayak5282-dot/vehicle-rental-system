@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accountant & Payment Staff | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Financial Desk</div>
+        <a href="payments.html" class="menu-item active">
+          <span class="menu-icon">💳</span> Accountant Desk
+        </a>
+
+        <div class="menu-category">Other Staff Desks</div>
+        <a href="maintenance.html" class="menu-item">
+          <span class="menu-icon">🔧</span> Maintenance Desk
+        </a>
+        <a href="receptionist.html" class="menu-item">
+          <span class="menu-icon">🛎️</span> Reception Desk
+        </a>
+        <a href="insurance.html" class="menu-item">
+          <span class="menu-icon">🛡️</span> Insurance Desk
+        </a>
+        <a href="verification.html" class="menu-item">
+          <span class="menu-icon">🔍</span> Security & KYC
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150" class="user-avatar" alt="Accountant">
+          <div class="user-info-text">
+            <span class="user-info-name">Claire Fontaine</span>
+            <span class="user-info-role">Financial Comptroller</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Billing, Transaction Audit & Ledger</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Total Collections</h3>
+              <div class="metric-val" id="accTotalCollections">₹2,16,150</div>
+              <div class="metric-trend" style="color: var(--status-available);">Verified in Escrow</div>
+            </div>
+            <div class="metric-icon-wrap">💵</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Settled Transactions</h3>
+              <div class="metric-val" id="accTxnCount">3</div>
+              <div class="metric-trend">Digital Gateway</div>
+            </div>
+            <div class="metric-icon-wrap">✓</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Refunds Issued</h3>
+              <div class="metric-val">0</div>
+              <div class="metric-trend" style="color: var(--status-available);">Zero Chargebacks</div>
+            </div>
+            <div class="metric-icon-wrap">🔄</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Tax Collected</h3>
+              <div class="metric-val" id="accTaxCollected">₹19,650</div>
+              <div class="metric-trend">10% GST Fleet Cess</div>
+            </div>
+            <div class="metric-icon-wrap">📑</div>
+          </div>
+        </div>
+
+        <!-- Payments Ledger Table -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Master Financial Transactions Ledger</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadAccountantLedger()">Refresh</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Booking Ref</th>
+                  <th>Customer</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Timestamp</th>
+                  <th>Status</th>
+                  <th>Audit Actions</th>
+                </tr>
+              </thead>
+              <tbody id="accountantLedgerBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Invoice View Modal -->
+  <div id="invoiceModal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3>Official Tax Invoice</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="invoiceModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary js-modal-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/payments.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['accountant', 'admin']);
+      loadAccountantLedger();
+    });
+
+    async function loadAccountantLedger() {
+      const tbody = document.getElementById('accountantLedgerBody');
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px;">Auditing payments ledger...</td></tr>`;
+
+      try {
+        const res = await api.payments.getAll();
+        const list = res.payments || [];
+
+        const total = list.reduce((sum, p) => sum + (p.amount || 0), 0);
+        document.getElementById('accTotalCollections').textContent = formatCurrency(total);
+        document.getElementById('accTxnCount').textContent = list.length;
+        const taxEl = document.getElementById('accTaxCollected');
+        if (taxEl) taxEl.textContent = formatCurrency(Math.round(total * 0.10));
+
+        tbody.innerHTML = list.map(p => `
+          <tr>
+            <td><code>${p.transaction_id}</code></td>
+            <td><strong>#${p.booking_id}</strong></td>
+            <td><strong>${p.customer_name || 'Sarah Jenkins'}</strong></td>
+            <td><strong style="color: var(--accent-gold);">${formatCurrency(p.amount)}</strong></td>
+            <td>${p.payment_method}</td>
+            <td style="font-size: 0.85rem; color: var(--text-muted);">${p.paid_at || 'Just now'}</td>
+            <td><span class="badge ${p.status === 'Paid' ? 'badge-green' : 'badge-yellow'}">${p.status}</span></td>
+            <td>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn btn-secondary btn-sm" onclick="showInvoice(${p.booking_id})">Invoice</button>
+                ${p.status === 'Paid' ? `
+                  <button class="btn btn-secondary btn-sm" onclick="issueRefund(${p.id})" style="color: var(--status-danger);">Refund</button>
+                ` : `
+                  <button class="btn btn-primary btn-sm" onclick="verifyPay(${p.id})">Verify</button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="color: var(--status-danger); text-align: center;">Error loading ledger.</td></tr>`;
+      }
+    }
+
+    async function verifyPay(id) {
+      try {
+        await api.payments.verify(id);
+        showToast('Payment verified successfully!', 'success');
+        loadAccountantLedger();
+      } catch (err) {
+        showToast('Error verifying payment', 'error');
+      }
+    }
+
+    async function issueRefund(id) {
+      const reason = prompt('Specify refund reason:');
+      if (reason === null) return;
+      try {
+        await api.payments.refund(id, { reason });
+        showToast('Refund processed successfully!', 'info');
+        loadAccountantLedger();
+      } catch (err) {
+        showToast('Error processing refund', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

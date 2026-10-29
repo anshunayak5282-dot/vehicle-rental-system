@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance & Compliance Desk | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Insurance Desk</div>
+        <a href="insurance.html" class="menu-item active">
+          <span class="menu-icon">🛡️</span> Insurance Policies
+        </a>
+
+        <div class="menu-category">Other Staff Desks</div>
+        <a href="maintenance.html" class="menu-item">
+          <span class="menu-icon">🔧</span> Maintenance Desk
+        </a>
+        <a href="payments.html" class="menu-item">
+          <span class="menu-icon">💳</span> Accountant Desk
+        </a>
+        <a href="receptionist.html" class="menu-item">
+          <span class="menu-icon">🛎️</span> Reception Desk
+        </a>
+        <a href="verification.html" class="menu-item">
+          <span class="menu-icon">🔍</span> Security & KYC
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150" class="user-avatar" alt="Insurance">
+          <div class="user-info-text">
+            <span class="user-info-name">Arthur Pendelton</span>
+            <span class="user-info-role">Insurance Officer</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Fleet Insurance & Claims Governance</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('addPolicyModal')">+ New Policy</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Active Fleet Policies</h3>
+              <div class="metric-val">3</div>
+              <div class="metric-trend" style="color: var(--status-available);">100% Comprehensive Coverage</div>
+            </div>
+            <div class="metric-icon-wrap">🛡️</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Policies Expiring Soon</h3>
+              <div class="metric-val">1</div>
+              <div class="metric-trend" style="color: var(--status-maintenance);">Due in < 45 Days</div>
+            </div>
+            <div class="metric-icon-wrap">⚠️</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Active Claims</h3>
+              <div class="metric-val">0</div>
+              <div class="metric-trend" style="color: var(--status-available);">Clean safety record</div>
+            </div>
+            <div class="metric-icon-wrap">✓</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Annual Premium Pool</h3>
+              <div class="metric-val" id="insTotalPremium">₹3,75,000</div>
+              <div class="metric-trend">ICICI Lombard & HDFC ERGO</div>
+            </div>
+            <div class="metric-icon-wrap">💰</div>
+          </div>
+        </div>
+
+        <!-- Policies Table -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Active Fleet Insurance Policies</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadInsuranceData()">Refresh</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Policy Number</th>
+                  <th>Vehicle Details</th>
+                  <th>Underwriter Provider</th>
+                  <th>Coverage Scope</th>
+                  <th>Effective Expiry</th>
+                  <th>Annual Premium</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="insuranceTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Policy Modal -->
+  <div id="addPolicyModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Register New Vehicle Insurance Policy</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleCreatePolicy(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Policy Number</label>
+              <input type="text" id="polNumber" class="form-control" placeholder="POL-BM-9921" required>
+            </div>
+            <div class="form-group">
+              <label>Insurance Provider</label>
+              <input type="text" id="polProvider" class="form-control" placeholder="ICICI Lombard, HDFC ERGO..." required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Select Fleet Vehicle</label>
+              <select id="polVehicle" class="form-control" required>
+                <option value="1">Porsche Taycan 4S (LUX-7701)</option>
+                <option value="2">Mercedes-Benz S-Class (MERC-402)</option>
+                <option value="3">BMW X7 M50i (BMW-908)</option>
+                <option value="6">Range Rover Autobiography (ROV-118)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Annual Premium (₹)</label>
+              <input type="number" id="polPremium" class="form-control" placeholder="125000" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="date" id="polStart" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Expiration Date</label>
+              <input type="date" id="polExpiry" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Coverage Terms</label>
+            <input type="text" id="polCoverage" class="form-control" value="Comprehensive Zero-Depreciation + Concierge Roadside" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Insurance Policy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['insurance', 'admin']);
+      document.getElementById('polStart').value = new Date().toISOString().split('T')[0];
+      const nextYr = new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0];
+      document.getElementById('polExpiry').value = nextYr;
+      loadInsuranceData();
+    });
+
+    async function loadInsuranceData() {
+      const tbody = document.getElementById('insuranceTableBody');
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;">Loading insurance registry...</td></tr>`;
+
+      try {
+        const res = await api.insurance.getAll();
+        const list = res.insurance || [];
+
+        const totalPrem = list.reduce((sum, item) => sum + (item.premium_amount || 0), 0);
+        if (totalPrem > 0) {
+          const el = document.getElementById('insTotalPremium');
+          if (el) el.textContent = formatCurrency(totalPrem);
+        }
+
+        tbody.innerHTML = list.map(item => `
+          <tr>
+            <td><code>${item.policy_number}</code></td>
+            <td>
+              <strong>${item.vehicle_name}</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${item.vehicle_number || ''}</div>
+            </td>
+            <td>${item.provider_name}</td>
+            <td style="font-size: 0.85rem;">${item.coverage_type}</td>
+            <td>${item.expiry_date}</td>
+            <td><strong style="color: var(--accent-gold);">${formatCurrency(item.premium_amount)} / yr</strong></td>
+            <td><span class="badge ${item.status === 'Active' ? 'badge-green' : 'badge-yellow'}">${item.status}</span></td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="sendRenewalReminder('${item.policy_number}')">Send Renewal Alert</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" style="color: var(--status-danger); text-align: center;">Error loading policies.</td></tr>`;
+      }
+    }
+
+    function sendRenewalReminder(polNum) {
+      showToast(`Automated policy renewal alert dispatched to underwriter for ${polNum}!`, 'success');
+    }
+
+    async function handleCreatePolicy(e) {
+      e.preventDefault();
+      const payload = {
+        vehicle_id: document.getElementById('polVehicle').value,
+        policy_number: document.getElementById('polNumber').value.trim(),
+        provider_name: document.getElementById('polProvider').value.trim(),
+        premium_amount: parseFloat(document.getElementById('polPremium').value),
+        start_date: document.getElementById('polStart').value,
+        expiry_date: document.getElementById('polExpiry').value,
+        coverage_type: document.getElementById('polCoverage').value.trim()
+      };
+
+      try {
+        await api.insurance.create(payload);
+        closeModal('addPolicyModal');
+        showToast('Insurance policy registered successfully!', 'success');
+        loadInsuranceData();
+      } catch (err) {
+        showToast('Error registering policy', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

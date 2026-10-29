@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Operations & Returns | Apex Fleet Manager</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Operations</div>
+        <a href="dashboard.html" class="menu-item">
+          <span class="menu-icon">📋</span> Dispatch Board
+        </a>
+        <a href="operations.html" class="menu-item active">
+          <span class="menu-icon">🗓️</span> Schedule & Handover
+        </a>
+
+        <div class="menu-category">Fleet & Governance</div>
+        <a href="../admin/vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> Fleet Inventory
+        </a>
+        <a href="../admin/bookings.html" class="menu-item">
+          <span class="menu-icon">📑</span> Master Bookings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150" class="user-avatar" alt="Manager">
+          <div class="user-info-text">
+            <span class="user-info-name">Eleanor Cross</span>
+            <span class="user-info-role">Rental Manager</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Daily Pickup & Return Schedule</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <!-- Schedule Timetable -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Today's Dispatch & Check-in Schedule</div>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time Window</th>
+                <th>Type</th>
+                <th>Vehicle</th>
+                <th>Customer</th>
+                <th>Hub Station</th>
+                <th>Handover Agent</th>
+                <th>Check-in Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>10:00 AM - 11:00 AM</strong></td>
+                <td><span class="badge badge-blue">Departure / Pickup</span></td>
+                <td>Porsche Taycan (MH 02 CZ 7701)</td>
+                <td>Sarah Jenkins</td>
+                <td>Mumbai - BKC Hub</td>
+                <td>Front Desk Handover</td>
+                <td><span class="badge badge-green">Keys Handed Over</span></td>
+              </tr>
+              <tr>
+                <td><strong>02:30 PM - 03:00 PM</strong></td>
+                <td><span class="badge badge-purple">Return / Check-in</span></td>
+                <td>Tesla Model S (GA 07 EV 0303)</td>
+                <td>Sarah Jenkins</td>
+                <td>Delhi NCR - Aerocity Hub</td>
+                <td>Inspection Return Desk</td>
+                <td><span class="badge badge-yellow">Inspection Queued</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Customer Complaints Resolver -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Customer Inquiries & Feedback Resolution</div>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Customer</th>
+                <th>Subject</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Resolution Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>TICK-2026-081</code></td>
+                <td>Sarah Jenkins</td>
+                <td>Luggage rack adjustment request for RS e-tron GT</td>
+                <td><span class="badge badge-blue">Normal</span></td>
+                <td><span class="badge badge-green">Resolved</span></td>
+                <td>Equipped complimentary premium ski/luggage rack.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['manager', 'admin']);
+    });
+  </script>
+</body>
+</html>

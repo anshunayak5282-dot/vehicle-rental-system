@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rental Income & Payouts | Apex Fleet Owner</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Owner Hub</div>
+        <a href="dashboard.html" class="menu-item">
+          <span class="menu-icon">💼</span> Owner Dashboard
+        </a>
+        <a href="vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> My Listed Vehicles
+        </a>
+        <a href="income.html" class="menu-item active">
+          <span class="menu-icon">💰</span> Rental Income & Payouts
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" class="user-avatar" alt="Owner">
+          <div class="user-info-text">
+            <span class="user-info-name">Marcus Sterling</span>
+            <span class="user-info-role">Vehicle Owner</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Earnings Statement & Bank Payouts</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="requestInstantPayout()">⚡ Request Instant Payout</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Net Settled Earnings</h3>
+              <div class="metric-val" id="ownerNetSettled">₹11,50,000</div>
+              <div class="metric-trend" style="color: var(--status-available);">100% Paid out</div>
+            </div>
+            <div class="metric-icon-wrap">💵</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Pending Escrow Balance</h3>
+              <div class="metric-val">₹1,45,000</div>
+              <div class="metric-trend" style="color: var(--accent-cyan);">Releasing after active trips</div>
+            </div>
+            <div class="metric-icon-wrap">⏳</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Partner Share Ratio</h3>
+              <div class="metric-val">85%</div>
+              <div class="metric-trend">15% platform concierge fee</div>
+            </div>
+            <div class="metric-icon-wrap">📊</div>
+          </div>
+        </div>
+
+        <!-- Bank Payout Destination -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 30px;">
+          <h3 style="margin-bottom: 12px;">Verified Payout Destination</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <div style="font-weight: 700; font-size: 1.1rem;">HDFC Bank Ltd. (Current Account)</div>
+              <div style="color: var(--text-secondary); font-size: 0.85rem;">Account: <code>IN54-5020-0044-0532</code> • IFSC: <code>HDFC0001234</code></div>
+            </div>
+            <span class="badge badge-green">✓ Direct Deposit Active</span>
+          </div>
+        </div>
+
+        <!-- Payout History Table -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Historical Payout Disbursements</div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Payout ID</th>
+                  <th>Settlement Date</th>
+                  <th>Vehicle Asset</th>
+                  <th>Gross Rental</th>
+                  <th>Net Payout (85%)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>PAYOUT-2026-904</code></td>
+                  <td>Oct 05, 2026</td>
+                  <td>Tesla Model S Plaid (TES-303)</td>
+                  <td>₹58,500</td>
+                  <td><strong style="color: var(--status-available);">₹49,725</strong></td>
+                  <td><span class="badge badge-green">Deposited</span></td>
+                </tr>
+                <tr>
+                  <td><code>PAYOUT-2026-882</code></td>
+                  <td>Sep 24, 2026</td>
+                  <td>Porsche Taycan 4S (LUX-7701)</td>
+                  <td>₹88,000</td>
+                  <td><strong style="color: var(--status-available);">₹74,800</strong></td>
+                  <td><span class="badge badge-green">Deposited</span></td>
+                </tr>
+                <tr>
+                  <td><code>PAYOUT-2026-751</code></td>
+                  <td>Aug 30, 2026</td>
+                  <td>Mercedes S-Class (MERC-402)</td>
+                  <td>₹1,08,000</td>
+                  <td><strong style="color: var(--status-available);">₹91,800</strong></td>
+                  <td><span class="badge badge-green">Deposited</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['owner']);
+      const user = auth.getUser();
+      if (user && user.total_earnings) {
+        const el = document.getElementById('ownerNetSettled');
+        if (el) el.textContent = formatCurrency(user.total_earnings);
+      }
+    });
+
+    function requestInstantPayout() {
+      showToast('Instant IMPS payout initiated to your HDFC account for ₹1,45,000', 'success');
+    }
+  </script>
+</body>
+</html>

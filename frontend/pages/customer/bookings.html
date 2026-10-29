@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Bookings | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Main Menu</div>
+        <a href="dashboard.html" class="menu-item">
+          <span class="menu-icon">🏠</span> Dashboard
+        </a>
+        <a href="vehicles.html" class="menu-item">
+          <span class="menu-icon">🚗</span> Explore Fleet
+        </a>
+        <a href="bookings.html" class="menu-item active">
+          <span class="menu-icon">📑</span> My Bookings
+        </a>
+        <a href="profile.html" class="menu-item">
+          <span class="menu-icon">👤</span> My Profile & KYC
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="user-avatar js-user-avatar" alt="Avatar">
+          <div class="user-info-text">
+            <span class="user-info-name js-user-name">Sarah Jenkins</span>
+            <span class="user-info-role">Customer</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>My Bookings & Rental History</h2>
+        </div>
+        <div class="topbar-actions">
+          <a href="vehicles.html" class="btn btn-primary btn-sm">+ New Rental</a>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <!-- Filter Tabs -->
+        <div class="filter-bar" style="justify-content: flex-start;">
+          <button class="filter-btn active" onclick="filterBookings('all', this)">All Bookings</button>
+          <button class="filter-btn" onclick="filterBookings('Active', this)">Active Trips</button>
+          <button class="filter-btn" onclick="filterBookings('Confirmed', this)">Confirmed</button>
+          <button class="filter-btn" onclick="filterBookings('Pending', this)">Pending Approval</button>
+          <button class="filter-btn" onclick="filterBookings('Completed', this)">Completed</button>
+        </div>
+
+        <div class="data-table-container">
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Vehicle Details</th>
+                  <th>Rental Schedule</th>
+                  <th>Chauffeur</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsTableBody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Review & Rating Modal -->
+  <div id="reviewModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Trip Feedback & Rating</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleReviewSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="reviewBookingId">
+          <div class="form-group">
+            <label>Rating (1 to 5 Stars)</label>
+            <select id="reviewRating" class="form-control">
+              <option value="5">⭐⭐⭐⭐⭐ 5 - Exceptional Experience</option>
+              <option value="4">⭐⭐⭐⭐ 4 - Very Good</option>
+              <option value="3">⭐⭐⭐ 3 - Satisfactory</option>
+              <option value="2">⭐⭐ 2 - Needs Improvement</option>
+              <option value="1">⭐ 1 - Unsatisfactory</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Your Feedback / Review Comments</label>
+            <textarea id="reviewComment" class="form-control" placeholder="Share your experience with the vehicle, handover and chauffeur..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Secure Rental Checkout</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="processPayment(event)">
+        <div class="modal-body">
+          <input type="hidden" id="payBookingId">
+          <input type="hidden" id="payAmount">
+
+          <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+            <div style="color: var(--text-muted); font-size: 0.85rem;">CUSTOMER: <strong id="payCustomerName" style="color: var(--text-main);"></strong></div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent-gold); margin-top: 4px;" id="payDisplayAmount">₹0</div>
+          </div>
+
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select id="payMethod" class="form-control">
+              <option value="Credit Card">Credit Card</option>
+              <option value="UPI / Online">UPI / Instant Digital</option>
+              <option value="Cash">Cash at Reception</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Invoice View Modal -->
+  <div id="invoiceModal" class="modal-overlay">
+    <div class="modal-dialog" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3>Tax Invoice & Receipt</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="invoiceModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary js-modal-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/bookings.js"></script>
+  <script src="../../js/payments.js"></script>
+
+  <script>
+    let myBookings = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['customer']);
+      loadCustomerBookings();
+    });
+
+    async function loadCustomerBookings() {
+      const tbody = document.getElementById('bookingsTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px;">Loading history...</td></tr>`;
+
+      try {
+        const res = await api.bookings.getAll();
+        const user = auth.getUser();
+        myBookings = res.bookings || [];
+        if (user && user.role === 'customer') {
+          myBookings = myBookings.filter(b => String(b.customer_id) === String(user.id) || (user.email && b.customer_email && b.customer_email.toLowerCase() === user.email.toLowerCase()));
+        }
+        renderBookingsTable(myBookings);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: var(--status-danger); text-align: center;">Error loading history.</td></tr>`;
+      }
+    }
+
+    function renderBookingsTable(list) {
+      const tbody = document.getElementById('bookingsTableBody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 32px; color: var(--text-muted);">No bookings found matching filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(b => {
+        const badgeClass =
+          b.status === 'Confirmed' ? 'badge-blue' :
+          b.status === 'Active' ? 'badge-green' :
+          b.status === 'Completed' ? 'badge-green' :
+          b.status === 'Approved' ? 'badge-purple' :
+          b.status === 'Cancelled' ? 'badge-red' : 'badge-yellow';
+
+        return `
+          <tr>
+            <td><strong>#${b.id}</strong><div style="font-size: 0.75rem; color: var(--text-muted);">${b.booking_code || ''}</div></td>
+            <td>
+              <div style="font-weight: 600;">${b.vehicle_name}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${b.vehicle_number || ''}</div>
+            </td>
+            <td>${b.start_date} &rarr; ${b.end_date}</td>
+            <td>${b.driver_required ? 'Uniformed Chauffeur' : 'Self-Drive'}</td>
+            <td><strong style="color: var(--accent-gold);">${formatCurrency(b.total_amount)}</strong></td>
+            <td><span class="badge ${badgeClass}">${b.status}</span></td>
+            <td>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-sm" onclick="showInvoice(${b.id})">Invoice</button>
+                ${b.status === 'Approved' && b.payment_status !== 'Paid' ? `
+                  <button class="btn btn-primary btn-sm" onclick="openPaymentModal(${b.id}, ${b.total_amount}, '${b.customer_name}')">Pay</button>
+                ` : ''}
+                ${b.status === 'Completed' ? `
+                  <button class="btn btn-outline btn-sm" onclick="openReviewModal(${b.id})">⭐ Rate</button>
+                ` : ''}
+                ${b.status !== 'Completed' && b.status !== 'Cancelled' ? `
+                  <button class="btn btn-secondary btn-sm" onclick="cancelBooking(${b.id})" style="color: var(--status-danger);">Cancel</button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterBookings(status, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (status === 'all') {
+        renderBookingsTable(myBookings);
+      } else {
+        renderBookingsTable(myBookings.filter(b => b.status.toLowerCase() === status.toLowerCase()));
+      }
+    }
+
+    function openReviewModal(bookingId) {
+      document.getElementById('reviewBookingId').value = bookingId;
+      openModal('reviewModal');
+    }
+
+    function handleReviewSubmit(e) {
+      e.preventDefault();
+      closeModal('reviewModal');
+      showToast('Thank you! Your feedback has been recorded.', 'success');
+    }
+  </script>
+</body>
+</html>

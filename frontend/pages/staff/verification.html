@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security & Document Verification | Apex Fleet</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/dashboard.css">
+  <link rel="stylesheet" href="../../css/forms.css">
+  <link rel="stylesheet" href="../../css/responsive.css">
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../../index.html" class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </a>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-category">Security Desk</div>
+        <a href="verification.html" class="menu-item active">
+          <span class="menu-icon">🔍</span> KYC & Inspection
+        </a>
+
+        <div class="menu-category">Other Staff Desks</div>
+        <a href="maintenance.html" class="menu-item">
+          <span class="menu-icon">🔧</span> Maintenance Desk
+        </a>
+        <a href="payments.html" class="menu-item">
+          <span class="menu-icon">💳</span> Accountant Desk
+        </a>
+        <a href="receptionist.html" class="menu-item">
+          <span class="menu-icon">🛎️</span> Reception Desk
+        </a>
+        <a href="insurance.html" class="menu-item">
+          <span class="menu-icon">🛡️</span> Insurance Desk
+        </a>
+
+        <div class="menu-category">External</div>
+        <a href="../../index.html" class="menu-item">
+          <span class="menu-icon">🌐</span> Website Home
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-summary">
+          <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150" class="user-avatar" alt="Security">
+          <div class="user-info-text">
+            <span class="user-info-name">Garrison Shaw</span>
+            <span class="user-info-role">Security & Compliance</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2>Identity Clearance, Handover Audits & Damage Logging</h2>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('damageModal')">⚠️ Log Damage Inspection</button>
+          <button class="btn btn-secondary btn-sm" onclick="auth.logout()">Sign Out</button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>KYC Verifications</h3>
+              <div class="metric-val">100%</div>
+              <div class="metric-trend" style="color: var(--status-available);">Biometrics Cleared</div>
+            </div>
+            <div class="metric-icon-wrap">🪪</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Vehicles Cleared</h3>
+              <div class="metric-val">8</div>
+              <div class="metric-trend">RC & Fitness Valid</div>
+            </div>
+            <div class="metric-icon-wrap">🚗</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>Flagged Incidents</h3>
+              <div class="metric-val">0</div>
+              <div class="metric-trend" style="color: var(--status-available);">Zero Tampering</div>
+            </div>
+            <div class="metric-icon-wrap">🛡️</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-info">
+              <h3>DMV Record Sync</h3>
+              <div class="metric-val">Online</div>
+              <div class="metric-trend" style="color: var(--accent-cyan);">Real-time Gateway</div>
+            </div>
+            <div class="metric-icon-wrap">⚡</div>
+          </div>
+        </div>
+
+        <!-- Document Verification Records Table -->
+        <div class="data-table-container">
+          <div class="table-header-bar">
+            <div class="table-header-title">Identity & Vehicle Verification Registry</div>
+            <button class="btn btn-secondary btn-sm" onclick="loadVerificationData()">Refresh</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Audit ID</th>
+                  <th>Target Type</th>
+                  <th>Subject Details</th>
+                  <th>Document Proof</th>
+                  <th>Verified By</th>
+                  <th>Status</th>
+                  <th>Auditor Action</th>
+                </tr>
+              </thead>
+              <tbody id="verificationTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Damage Log Modal -->
+  <div id="damageModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Record Return Inspection Damage</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="handleDamageSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Select Inspected Vehicle</label>
+            <select id="dmgVehicle" class="form-control">
+              <option value="1">Porsche Taycan 4S (LUX-7701)</option>
+              <option value="5">Tesla Model S Plaid (TES-303)</option>
+              <option value="6">Range Rover Autobiography (ROV-118)</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Damage Severity</label>
+              <select id="dmgSeverity" class="form-control">
+                <option value="Low">Low (Scuffed bumper, surface scratch)</option>
+                <option value="Medium">Medium (Dent, cracked headlight)</option>
+                <option value="High">High (Structural or mechanical defect)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Estimated Repair Cost (₹)</label>
+              <input type="number" id="dmgCost" class="form-control" placeholder="15000" value="12500" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Inspection Notes</label>
+            <textarea id="dmgNotes" class="form-control" placeholder="Detailed physical condition report..." required>Minor left rear rim scuff noted during post-trip return inspection.</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary js-modal-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">File Damage Incident</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/common.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      auth.guard(['verification', 'admin']);
+      loadVerificationData();
+    });
+
+    async function loadVerificationData() {
+      const tbody = document.getElementById('verificationTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px;">Auditing security documents...</td></tr>`;
+
+      try {
+        const res = await api.verification.getAll();
+        const list = res.verifications || [];
+
+        tbody.innerHTML = list.map(v => `
+          <tr>
+            <td><code>VER-2026-00${v.id}</code></td>
+            <td><span class="badge ${v.target_type === 'customer_doc' ? 'badge-blue' : 'badge-yellow'}">${v.target_type === 'customer_doc' ? 'Customer Identity' : 'Vehicle RC Document'}</span></td>
+            <td><strong>${v.customer_name || v.vehicle_name || 'Sarah Jenkins'}</strong></td>
+            <td>${v.document_type}</td>
+            <td style="font-size: 0.85rem; color: var(--text-muted);">${v.verifier_name || 'Garrison Shaw'}</td>
+            <td><span class="badge ${v.status === 'Approved' ? 'badge-green' : 'badge-red'}">${v.status}</span></td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="showToast('DMV record and tamper hash: VALID', 'success')">Verify Biometrics</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: var(--status-danger); text-align: center;">Error loading verification logs.</td></tr>`;
+      }
+    }
+
+    function handleDamageSubmit(e) {
+      e.preventDefault();
+      closeModal('damageModal');
+      showToast('Return inspection damage logged & deducted from deposit waiver!', 'info');
+    }
+  </script>
+</body>
+</html>

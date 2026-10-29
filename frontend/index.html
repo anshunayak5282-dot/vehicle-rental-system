@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Fleet | Premium Vehicle Rental System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Sticky Demo Role Switcher Bar (Injected by common.js) -->
+
+  <!-- Main Luxury Navbar -->
+  <header class="navbar">
+    <a href="index.html" class="logo-brand">
+      <div class="icon-badge">⚡</div>
+      <span>APEX<span class="highlight">FLEET</span></span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#search" class="nav-link active">Find Vehicles</a></li>
+      <li><a href="#fleet" class="nav-link">Our Fleet</a></li>
+      <li><a href="#roles" class="nav-link">Portals & Roles</a></li>
+      <li><a href="#workflow" class="nav-link">How It Works</a></li>
+      <li><a href="#experience" class="nav-link">Why Apex</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-secondary btn-sm">Sign In</a>
+      <a href="pages/customer/vehicles.html" class="btn btn-primary btn-sm">Explore Fleet</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-glow-blob one"></div>
+    <div class="hero-glow-blob two"></div>
+
+    <div class="hero-container">
+      <div class="hero-badge">Enterprise & Luxury Mobility</div>
+      <h1 class="hero-title">
+        The Pinnacle of Fleet Rental <br>
+        <span class="gradient-text">Engineered for Excellence</span>
+      </h1>
+      <p class="hero-subtitle">
+        Seamlessly rent, manage, and dispatch world-class vehicles. A unified full-stack ecosystem connecting customers, rental managers, professional chauffeurs, and system administrators.
+      </p>
+
+      <!-- Search & Availability Widget -->
+      <div id="search" class="search-widget">
+        <div class="search-field">
+          <label>Pickup Location</label>
+          <select id="heroLocation">
+            <option value="all">All Locations (Pan-India)</option>
+            <option value="Mumbai - Bandra Kurla Complex (BKC)">Mumbai - Bandra Kurla Complex (BKC)</option>
+            <option value="Delhi NCR - IGI Airport T3 VIP Lounge">Delhi NCR - IGI Airport T3 VIP Lounge</option>
+            <option value="Bengaluru - UB City Hub">Bengaluru - UB City Hub</option>
+            <option value="Hyderabad - HITEC City Concourse">Hyderabad - HITEC City Concourse</option>
+            <option value="Goa - Coastal Suite">Goa - Coastal Suite</option>
+          </select>
+        </div>
+
+        <div class="search-field">
+          <label>Rental Start</label>
+          <input type="date" id="heroStartDate">
+        </div>
+
+        <div class="search-field">
+          <label>Return Date</label>
+          <input type="date" id="heroEndDate">
+        </div>
+
+        <div class="search-field">
+          <label>Vehicle Class</label>
+          <select id="heroCategory">
+            <option value="all">All Classes</option>
+            <option value="Electric">Electric</option>
+            <option value="Luxury Sedan">Luxury Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="Sports Car">Sports Car</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary" onclick="handleHeroSearch()">
+          <span>🔍</span> Search Fleet
+        </button>
+      </div>
+
+      <!-- Quick Trust Indicators -->
+      <div style="display: flex; justify-content: center; gap: 40px; color: var(--text-secondary); font-size: 0.9rem; flex-wrap: wrap;">
+        <div>✓ 100% Insured & Verified Fleet</div>
+        <div>✓ Professional Chauffeurs Available</div>
+        <div>✓ Zero Hidden Handover Fees</div>
+        <div>✓ Instant Digital Invoicing</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Fleet Section -->
+  <section id="fleet" class="section">
+    <div class="section-header">
+      <div class="section-subtitle">Exquisite Inventory</div>
+      <h2 class="section-title">Explore Our Curated Fleet</h2>
+      <p class="section-desc">From whisper-quiet electric performance to executive saloons and rugged luxury SUVs, experience vehicles maintained to the highest standards.</p>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="applyCategoryFilter('all', this)">All Vehicles</button>
+      <button class="filter-btn" onclick="applyCategoryFilter('Electric', this)">⚡ Electric</button>
+      <button class="filter-btn" onclick="applyCategoryFilter('Luxury Sedan', this)">Executive Sedans</button>
+      <button class="filter-btn" onclick="applyCategoryFilter('SUV', this)">Premium SUVs</button>
+      <button class="filter-btn" onclick="applyCategoryFilter('Sports Car', this)">Sports Coupes</button>
+    </div>
+
+    <!-- Vehicles Grid Container -->
+    <div id="vehiclesContainer" class="vehicles-grid">
+      <!-- Injected via vehicles.js -->
+    </div>
+
+    <div style="text-align: center; margin-top: 50px;">
+      <a href="pages/customer/vehicles.html" class="btn btn-secondary btn-lg">Browse Complete Fleet Catalog &rarr;</a>
+    </div>
+  </section>
+
+  <!-- 4 Core Roles Interactive Showcase -->
+  <section id="roles" class="section" style="background: rgba(17, 24, 39, 0.4); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <div class="section-header">
+      <div class="section-subtitle">Core Role Architecture</div>
+      <h2 class="section-title">Four Specialized Dedicated Portals</h2>
+      <p class="section-desc">Click any role below to launch directly into its dedicated dashboard with full capabilities.</p>
+    </div>
+
+    <div class="roles-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+      <!-- 1. Admin -->
+      <div class="role-card" onclick="auth.switchDemoRole('admin')" style="cursor: pointer;">
+        <div class="role-icon">👑</div>
+        <h3 class="role-title">1. System Admin</h3>
+        <p class="role-desc">Full governance: user accounts, fleet status, financial metrics, and executive reports.</p>
+        <span class="btn btn-outline btn-sm">Launch Portal &rarr;</span>
+      </div>
+
+      <!-- 2. Customer -->
+      <div class="role-card" onclick="auth.switchDemoRole('customer')" style="cursor: pointer;">
+        <div class="role-icon">🚗</div>
+        <h3 class="role-title">2. Customer</h3>
+        <p class="role-desc">Browse luxury vehicles, select dates, request chauffeurs, confirm payments, and rate trips.</p>
+        <span class="btn btn-outline btn-sm">Launch Portal &rarr;</span>
+      </div>
+
+      <!-- 3. Rental Manager -->
+      <div class="role-card" onclick="auth.switchDemoRole('manager')" style="cursor: pointer;">
+        <div class="role-icon">📋</div>
+        <h3 class="role-title">3. Rental Manager</h3>
+        <p class="role-desc">Approve/reject bookings, dispatch vehicles & chauffeurs, and manage operational schedules.</p>
+        <span class="btn btn-outline btn-sm">Launch Portal &rarr;</span>
+      </div>
+
+      <!-- 4. Driver / Chauffeur -->
+      <div class="role-card" onclick="auth.switchDemoRole('driver')" style="cursor: pointer;">
+        <div class="role-icon">🧭</div>
+        <h3 class="role-title">4. Driver / Chauffeur</h3>
+        <p class="role-desc">View assigned executive passenger trips, navigate itineraries, and update live journey status.</p>
+        <span class="btn btn-outline btn-sm">Launch Portal &rarr;</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Complete Workflow Infographic -->
+  <section id="workflow" class="section">
+    <div class="section-header">
+      <div class="section-subtitle">Lifecycle Workflow</div>
+      <h2 class="section-title">From Reservation to Return</h2>
+      <p class="section-desc">A continuous, secure lifecycle adhering to the full system specification.</p>
+    </div>
+
+    <div style="max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; text-align: center;">
+      <div style="background: var(--bg-surface); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="font-size: 2rem; color: var(--accent-gold); margin-bottom: 12px;">01</div>
+        <h4>Search & Select</h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 8px;">Filter by class, rate, fuel type, and check live availability dates.</p>
+      </div>
+
+      <div style="background: var(--bg-surface); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="font-size: 2rem; color: var(--accent-gold); margin-bottom: 12px;">02</div>
+        <h4>Approval & Dispatch</h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 8px;">Rental Manager audits booking schedule, assigns chauffeur, and authorizes dispatch.</p>
+      </div>
+
+      <div style="background: var(--bg-surface); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="font-size: 2rem; color: var(--accent-gold); margin-bottom: 12px;">03</div>
+        <h4>Payment & Bill</h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 8px;">Instant digital checkout in INR with automated official tax invoice receipt.</p>
+      </div>
+
+      <div style="background: var(--bg-surface); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="font-size: 2rem; color: var(--accent-gold); margin-bottom: 12px;">04</div>
+        <h4>Handover & Trip</h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 8px;">Odometer departure check, chauffeur pickup or self-drive trip execution.</p>
+      </div>
+
+      <div style="background: var(--bg-surface); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+        <div style="font-size: 2rem; color: var(--accent-gold); margin-bottom: 12px;">05</div>
+        <h4>Return & Rating</h4>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 8px;">Vehicle return check-in, customer leaves chauffeur and vehicle rating.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vehicle Details Inspection Modal -->
+  <div id="vehicleDetailModal" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Vehicle Specifications & Overview</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="vehicleDetailModalBody">
+        <!-- Injected via vehicles.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary js-modal-cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Luxury Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-brand">
+          <div class="icon-badge">⚡</div>
+          <span>APEX<span class="highlight">FLEET</span></span>
+        </div>
+        <p>Enterprise vehicle rental platform with role-based governance, high-availability architecture, and real-time fleet analytics.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Core Portals</h4>
+        <ul>
+          <li><a href="#" onclick="auth.switchDemoRole('admin')">👑 System Admin Hub</a></li>
+          <li><a href="#" onclick="auth.switchDemoRole('customer')">🚗 Customer Portal</a></li>
+          <li><a href="#" onclick="auth.switchDemoRole('manager')">📋 Rental Manager Desk</a></li>
+          <li><a href="#" onclick="auth.switchDemoRole('driver')">🧭 Chauffeur Dashboard</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>System Info</h4>
+        <ul>
+          <li>Version: 2.5.0 Production</li>
+          <li>Backend: Node.js + Express</li>
+          <li>Database: MongoDB (Mongoose) / MySQL</li>
+          <li>Security: JWT + bcrypt</li>
+          <li>Test Password: <code>Password@123</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 Apex Fleet Vehicle Rental System. All rights reserved.</div>
+      <div>Designed with Precision & Performance</div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/vehicles.js"></script>
+
+  <script>
+    // Init dates and load vehicles on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      const nextWeek = new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0];
+      
+      const sInput = document.getElementById('heroStartDate');
+      const eInput = document.getElementById('heroEndDate');
+      if (sInput) sInput.value = today;
+      if (eInput) eInput.value = nextWeek;
+
+      loadVehicles('vehiclesContainer');
+    });
+
+    function applyCategoryFilter(cat, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadVehicles('vehiclesContainer', { type: cat });
+    }
+
+    function handleHeroSearch() {
+      const cat = document.getElementById('heroCategory').value;
+      loadVehicles('vehiclesContainer', { type: cat });
+      document.getElementById('fleet').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

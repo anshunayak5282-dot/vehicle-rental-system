@@ -1,0 +1,24 @@
+{
+  "name": "vehicle-rental-system",
+  "version": "1.0.0",
+  "description": "Premium Full-Stack Vehicle Rental System supporting 10 user roles",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "seed:mongo": "node backend/database/mongoSeed.js"
+  },
+  "keywords": [
+    "vehicle-rental",
+    "car-rental",
+    "express",
+    "mysql",
+    "mongodb",
+    "mongoose",
+    "jwt",
+    "fullstack"
+  ],
+  "author": "Vehicle Rental System",
+  "license": "ISC"
+}
